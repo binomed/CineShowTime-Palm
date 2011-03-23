@@ -1,0 +1,12 @@
+{
+	"id": "com.binomed.cineshowtime",
+	"version": "1.1.0",
+	"vendor": "Binomed",
+	"type": "web",
+	"main": "index.html",
+	"title": "CineShowTime",
+	"icon": "icon.png",
+	"removable": true,
+	"copyright": "© 2010 - Binomed",
+	"licence": "GNU General Public License v2"
+}

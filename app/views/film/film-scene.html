@@ -1,0 +1,70 @@
+<div id="main" class="film_main">
+	<div class="header_title">
+	</div>
+	
+	<div id="switchDisplay" class="radio_display">		
+	</div>
+	
+	<div class="tab_container" x-mojo-element="Scroller" id="scroller_tab" name="scrollerName">
+		<div id="horz_scrolling_contents" style="width: 960px;">
+		<table style="width:100%;">
+			<tr>
+				<td valign="top" width="320" id='movieContainer' class="movie_container">
+					<div id='movieScroll' x-mojo-element="Scroller">
+						<div class="movie">
+							<img id='movieImg' class="movie_img" src='images/no_poster.png' style="float:left;" />
+							<span id='movieDesc' class="movieDescription"></span>
+						</div>
+						<br />
+						<div id='titleResume'></div>
+						<div id='resume' class='film_resume'></div>
+					</div>
+				</td>
+				
+				<td valign="top" width="320" id='showtimesContainer' class="showtimes_container">
+					<div id='stScroll' x-mojo-element="Scroller">
+						<div class="info_theater">
+							<span style="font-weight:bold;" id="theaterNameBold"></span><br />
+							<span id="theaterAddress"></span>
+							<table id="theaterLinks" align="center">
+								<tr>
+									<td><div class="maps_button flleft" id="theater_worldmap">
+										<img src="images/ic_menu_mapmode.png" align="absmiddle" />
+									</div></td>
+									<td><div class="maps_button flcenter" id="theater_directions">
+										<img src="images/ic_menu_directions.png" align="absmiddle" />
+									</div></td>
+									<td><div class="maps_button flright" id="theater_call">
+										<img src="images/ic_menu_call.png" align="absmiddle" />
+									</div></td>
+								</tr>
+							</table>
+						</div>
+						<div id='showtimesListContainer'>
+							<div id="listShowtimes" x-mojo-element="List" >
+							</div>
+						</div>
+					</div>
+				</td>
+				
+				<td valign="top" width="320" id='rateContainer' class="rate_container">
+					<div id='rateScroll' x-mojo-element="Scroller">
+						<div class="my-scene-fade-top" x-mojo-scroll-fade="top"></div>
+						
+						<div id='rateContenu'>
+							Critiques
+						</div>
+						
+						<div class="my-scene-fade-bottom" x-mojo-scroll-fade="bottom"></div>
+					</div>
+				</td>
+			</tr>
+		</table>
+		</div>
+	</div>
+</div>
+
+<div class="palm-scrim palm-scrim-cine" id="myScrimFilm">
+   <div x-mojo-element="Spinner" id="progressSpinnerFilm"></div>
+   <div class="loading_text" id="loadingTextFilm">&nbsp;</div>
+</div>

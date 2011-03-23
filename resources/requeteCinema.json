@@ -1,0 +1,138 @@
+{	"cityName":"Nevers%2C+FR",
+	"hasMoreResults":false,
+	"mapMovies": {	"25590e5366c2cd57": {	"id":"25590e5366c2cd57",
+											"englishMovieName":"Shutter+Island",
+											"movieTime":1267406269110,
+											"lang":"? Dubbed in French ",
+											"imdbDesrciption":false
+										},
+					"9ef4d2336eff2a76":{	"id":"9ef4d2336eff2a76",
+											"englishMovieName":"Percy+Jackson+%26+The+Olympians+%3A+The+Lightning+Thief",
+											"movieTime":1267405369110,
+											"lang":"? Dubbed in French ",
+											"imdbDesrciption":false
+										},
+					"f7d01897bf978f7b":	{	"id":"f7d01897bf978f7b",
+											"englishMovieName":"Le+Mac",
+											"movieTime":1267402849110,
+											"lang":"? ",
+											"imdbDesrciption":false
+										},
+					"49f537e6afbe5674":	{	"id":"49f537e6afbe5674",
+											"englishMovieName":"Sherlock+Holmes",
+											"movieTime":1267405729110,
+											"lang":"? Dubbed in French ",
+											"imdbDesrciption":false
+										},
+					"e09e2880a245e847":	{	"id":"e09e2880a245e847",
+											"englishMovieName":"From+Paris+with+Love",
+											"movieTime":1267403629110,
+											"lang":"? Dubbed in French ",
+											"imdbDesrciption":false
+										},
+					"33b9bbbe9cb0ea17":	{	"id":"33b9bbbe9cb0ea17",
+											"englishMovieName":"Ensemble+c%27est+trop",
+											"movieTime":1267403809110,
+											"lang":"? ",
+											"imdbDesrciption":false
+										},
+					"deff6a26c7d88caa":	{	"id":"deff6a26c7d88caa",
+											"englishMovieName":"Valentine%27s+Day",
+											"movieTime":1267403449110,
+											"lang":"? Dubbed in French ",
+											"imdbDesrciption":false
+										},
+					"980e31baf8023278":	{	"id":"980e31baf8023278",
+											"englishMovieName":"Oc%C3%A9ans",
+											"movieTime":1267404229110,
+											"lang":"? ",
+											"imdbDesrciption":false
+										},
+					"e14913caa858424a":	{	"id":"e14913caa858424a",
+											"englishMovieName":"Kasi+az+gorbehaye+irani+khabar+nadareh",
+											"movieTime":1267404109110,
+											"lang":"? Subtitled in French ",
+											"imdbDesrciption":false}
+										},
+					"theaterList": [	
+						{	"id":"",
+							"theaterName":"Le+Mazarin",
+							"phoneNumber":"0386592618",
+							"place": {	"distance":1567.0,
+										"distanceTime":276000,
+										"latitude":46.9887286,
+										"longitude":3.1513644,
+										"searchQuery":"3bis%2Brue%2BPassi%C3%A8re%2C%2B58000%2BNevers%2C%2BFrance",
+										"countryName":"France",
+										"countryNameCode":"FR",
+										"cityName":"Nevers",
+										"postalCityNumber":"58000"
+									 },
+							"movieMap":{	"25590e5366c2cd57": [
+															{	"showtime":1267449349110,
+																"lang":"2|null| Dubbed in French"
+															},{	"showtime":1267461949110,
+																"lang":"2|null| Dubbed in French"
+															},{	"showtime":1267470949110,
+																"lang":"2|null| Dubbed in French"}
+															],
+											"9ef4d2336eff2a76":	[
+															{	"showtime":1267471849110,
+																"lang":"2|null| Dubbed in French"}
+															],
+											"f7d01897bf978f7b":	[
+															{	"showtime":1267450249110,
+																"lang":"2|null|null"
+															},{	"showtime":1267462849110,
+																"lang":"2|null|null"
+															},{	"showtime":1267471849110,
+																"lang":"2|null|null"}
+															],
+											"49f537e6afbe5674":	[
+															{	"showtime":1267450249110,
+																"lang":"2|null| Dubbed in French"
+															},{	"showtime":1267462849110,
+																"lang":"2|null| Dubbed in French"
+															},{	"showtime":1267471849110,
+																"lang":"2|null| Dubbed in French"}
+															],
+											"e09e2880a245e847":[
+															{	"showtime":1267450249110,
+																"lang":"2|null| Dubbed in French"
+															},{	"showtime":1267462849110,
+																"lang":"2|null| Dubbed in French"
+															},{	"showtime":1267471849110,
+																"lang":"2|null| Dubbed in French"}
+															],
+											"33b9bbbe9cb0ea17":[
+															{	"showtime":1267450249110,
+																"lang":"2|null|null"
+															},{	"showtime":1267462849110,
+																"lang":"2|null|null"
+															},{	"showtime":1267471849110,
+																"lang":"2|null|null"}
+															],
+											"deff6a26c7d88caa":[
+															{	"showtime":1267450249110,
+																"lang":"2|null| Dubbed in French"
+															},{	"showtime":1267462849110,
+																"lang":"2|null| Dubbed in French"
+															},{	"showtime":1267471849110,
+																"lang":"2|null| Dubbed in French"}
+															],
+											"980e31baf8023278":[
+															{	"showtime":1267462849110,
+																"lang":"2|null|null"}
+															],
+											"e14913caa858424a":[
+															{	"showtime":1267450249110,
+																"lang":"2|null| Subtitled in French"
+															},{	"showtime":1267462849110,
+																"lang":"2|null| Subtitled in French"
+															},{	"showtime":1267471849110,
+															"lang":"2|null| Subtitled in French"}
+															]
+										}
+						}
+					]
+} 

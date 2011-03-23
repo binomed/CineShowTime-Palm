@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NEAR_RESP CITY_NAME = "Nevers%2C+FR" MORE_RESULTS = "false">
+    <MOVIE_LIST>
+        <MOVIE ENGLISH_MOVIE_NAME = "Shutter+Island" ID = "25590e5366c2cd57" LANG = "? Dubbed in French  " TIME = "1267406269110"/>
+        <MOVIE ENGLISH_MOVIE_NAME = "Percy+Jackson+%26+The+Olympians+%3A+The+Lightning+Thief" ID = "9ef4d2336eff2a76" LANG = "? Dubbed in French  " TIME = "1267405369110"/>
+        <MOVIE ENGLISH_MOVIE_NAME = "Le+Mac" ID = "f7d01897bf978f7b" LANG = "? " TIME = "1267402849110"/>
+        <MOVIE ENGLISH_MOVIE_NAME = "Sherlock+Holmes" ID = "49f537e6afbe5674" LANG = "? Dubbed in French  " TIME = "1267405729110"/>
+        <MOVIE ENGLISH_MOVIE_NAME = "From+Paris+with+Love" ID = "e09e2880a245e847" LANG = "? Dubbed in French  " TIME = "1267403629110"/>
+        <MOVIE ENGLISH_MOVIE_NAME = "Ensemble+c%27est+trop" ID = "33b9bbbe9cb0ea17" LANG = "? " TIME = "1267403809110"/>
+        <MOVIE ENGLISH_MOVIE_NAME = "Valentine%27s+Day" ID = "deff6a26c7d88caa" LANG = "? Dubbed in French  " TIME = "1267403449110"/>
+        <MOVIE ENGLISH_MOVIE_NAME = "Oc%C3%A9ans" ID = "980e31baf8023278" LANG = "? " TIME = "1267404229110"/>
+        <MOVIE ENGLISH_MOVIE_NAME = "Kasi+az+gorbehaye+irani+khabar+nadareh" ID = "e14913caa858424a" LANG = "? Subtitled in French  " TIME = "1267404109110"/>
+    </MOVIE_LIST>
+    <THEATER_LIST>
+        <THEATER ID = "" PHONE_NUMBER = "0386592618" THEATER_NAME = "Le+Mazarin">
+            <LOCALISATION CITY_NAME = "Nevers" COUNTRY_CODE = "FR" COUNTRY_NAME = "France" DISTANCE = "1567.0" DISTANCE_TIME = "276000" LATITUDE = "46.9887286" LONGITUDE = "3.1513644" POSTAL_CODE = "58000" SEARCH_QUERY = "3bis%2Brue%2BPassi%C3%A8re%2C%2B58000%2BNevers%2C%2BFrance"/>
+            <PROJECTION_LIST>
+                <MOVIE ID = "25590e5366c2cd57">
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267449349110"/>
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267461949110"/>
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267470949110"/>
+                </MOVIE>
+                <MOVIE ID = "9ef4d2336eff2a76">
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267471849110"/>
+                </MOVIE>
+                <MOVIE ID = "f7d01897bf978f7b">
+                    <PROJECTION LANG = "2|null|null" TIME = "1267450249110"/>
+                    <PROJECTION LANG = "2|null|null" TIME = "1267462849110"/>
+                    <PROJECTION LANG = "2|null|null" TIME = "1267471849110"/>
+                </MOVIE>
+                <MOVIE ID = "49f537e6afbe5674">
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267450249110"/>
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267462849110"/>
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267471849110"/>
+                </MOVIE>
+                <MOVIE ID = "e09e2880a245e847">
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267450249110"/>
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267462849110"/>
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267471849110"/>
+                </MOVIE>
+                <MOVIE ID = "33b9bbbe9cb0ea17">
+                    <PROJECTION LANG = "2|null|null" TIME = "1267450249110"/>
+                    <PROJECTION LANG = "2|null|null" TIME = "1267462849110"/>
+                    <PROJECTION LANG = "2|null|null" TIME = "1267471849110"/>
+                </MOVIE>
+                <MOVIE ID = "deff6a26c7d88caa">
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267450249110"/>
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267462849110"/>
+                    <PROJECTION LANG = "2|null| Dubbed in French" TIME = "1267471849110"/>
+                </MOVIE>
+                <MOVIE ID = "980e31baf8023278">
+                    <PROJECTION LANG = "2|null|null" TIME = "1267462849110"/>
+                </MOVIE>
+                <MOVIE ID = "e14913caa858424a">
+                    <PROJECTION LANG = "2|null| Subtitled in French" TIME = "1267450249110"/>
+                    <PROJECTION LANG = "2|null| Subtitled in French" TIME = "1267462849110"/>
+                    <PROJECTION LANG = "2|null| Subtitled in French" TIME = "1267471849110"/>
+                </MOVIE>
+            </PROJECTION_LIST>
+        </THEATER>
+    </THEATER_LIST>
+</NEAR_RESP>

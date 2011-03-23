@@ -1,0 +1,45 @@
+[
+    {"source": "app/assistants/stage-assistant.js"},
+    {
+        "scenes": "accueil",
+        "source": "app/assistants/accueil-assistant.js"
+    },
+    {
+        "scenes": "recherche",
+        "source": "app/assistants/recherche/recherche-assistant.js"
+    },
+    {
+        "scenes": "resultat",
+        "source": "app/assistants/resultat/resultat-assistant.js"
+    },
+    {
+        "scenes": "film",
+        "source": "app/assistants/film/film-assistant.js"
+    },
+    {
+        "scenes": "preferences",
+        "source": "app/assistants/preferences/preferences-assistant.js"
+    },
+	{"source": "app/assistants/about-assistant.js"},
+    {"source": "app/assistants/preferences/dialog/dialog-check-assistant.js"},
+    {"source": "app/assistants/preferences/dialog/dialog-list-assistant.js"},
+    {"source": "app/assistants/preferences/dialog/dialog-time-assistant.js"},
+    {"source": "app/assistants/preferences/dialog/dialog-about-assistant.js"},
+    {"source": "app/utils/DBHelper.js"},
+    {"source": "app/utils/PreferenceUtils.js"},
+    {"source": "app/utils/jquery-1.4.2.min.js"},
+    {"source": "app/utils/Functions.js"},
+    {"source": "app/utils/MenuUtils.js"},
+    {"source": "app/utils/CineShowTimeCst.js"},
+    {"source": "app/utils/comparators/ComparatorTheaterName.js"},
+    {"source": "app/utils/comparators/ComparatorTheaterDistance.js"},
+    {"source": "app/utils/comparators/ComparatorTheaterShowTime.js"},
+    {"source": "app/utils/comparators/ComparatorShowTime.js"},
+    {"source": "app/utils/comparators/ComparatorMovieName.js"},
+    {"source": "app/model/TheaterBean.js"},
+    {"source": "app/model/MovieBean.js"},
+    {"source": "app/model/LocalisationBean.js"},
+    {"source": "app/model/ProjectionBean.js"},
+    {"source": "app/model/RequestBean.js"},
+    {"source": "app/model/ReviewBean.js"}
+]
