@@ -31,7 +31,11 @@ function CineShowTimeCst(){
 	
 	
 	this.LAST_CHANGE_MESSAGE = "<ul class='versions'>"
-	                        + "  <li class='current'>V1.2.0</li>"
+							+ "  <li class='current'>V1.2.1</li>"
+							+ "    <ul>"
+							+ "      <li>Use Youtube page for searching trailers</li>"                       
+							+ "    </ul>"               
+	                        + "  <li>V1.2.0</li>"
                           + "    <ul>"
                           + "      <li>Added \"light\" display theme</li>"
                           + "      <li>Added \"what's new\" feature</li>"

@@ -145,7 +145,7 @@ FilmAssistant.prototype.handleCommand = function (event) {
 }
 
 FilmAssistant.prototype.getTrailer = function() {
-	/*this.controller.serviceRequest("palm://com.palm.applicationManager", {
+	this.controller.serviceRequest("palm://com.palm.applicationManager", {
 						method: "open",
 						parameters: {
 							id: 'com.palm.app.browser',
@@ -154,8 +154,9 @@ FilmAssistant.prototype.getTrailer = function() {
 								target: 'http://m.youtube.com/results?q='+this.getMovieTitle(this.movie)+' trailer'
 							}
 						}
-					});	*/
+					});	
 
+	/*
 	this.controller.serviceRequest('palm://com.palm.applicationManager', {
 	   method: 'launch',
 	   parameters: {
@@ -163,6 +164,7 @@ FilmAssistant.prototype.getTrailer = function() {
 		  params:{"query":this.getMovieTitle(this.movie)+' trailer'}
 	   }
 	}); 
+	*/
 }
 
 FilmAssistant.prototype.callTheater = function() {
