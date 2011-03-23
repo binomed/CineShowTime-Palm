@@ -655,7 +655,7 @@ FilmAssistant.prototype.findShowtimes = function(movieId) {
 		distanceTime = null;
 	}
 	
-	if (distanceTime == null || isNan(distanceTime) ){
+	if (distanceTime == null || isNaN(distanceTime) ){
 		distanceTime = 0;
 	}
 	

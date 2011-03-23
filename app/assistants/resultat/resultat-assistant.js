@@ -408,7 +408,8 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
 	// Gestion des messages d'erreurs.
 	var errorString = null;
 	
-	console.log("ResultatAssistant.loadResults : theater.id : " + theaterList[0].id + ", parseInt : " + parseInt(theaterList[0].id) + ", isNaN : " + isNaN(theaterList[0].id));
+	//console.log("ResultatAssistant.loadResults : test");
+	//console.log("ResultatAssistant.loadResults : theater.id : " + theaterList[0].id + ", parseInt : " + parseInt(theaterList[0].id) + ", isNaN : " + isNaN(theaterList[0].id));
 	
 	
 	if (theaterList.length == 1 ){
@@ -1125,76 +1126,88 @@ ResultatAssistant.prototype.parsingXml = function(xmlResult) {
 	var movieList = [];
 	
 	try {
-  	this.moreResult = xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("MORE_RESULTS") == 'true';
-  	
-  	// On récupère le mode d'affichage et on met à jour le requestBean associé
-  	this.theaterView = xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("NEAR_RESP") == 'true';
-  	this.requestBean.nearResp = this.theaterView;
-  	console.log("ResultatsAssistant.parsingXml : xmlResults : "+xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("NEAR_RESP")+", theaterView : "+this.theaterView)
-  	
-  	
-  	// Liste des films
-  	for (var k = 0; k < xmlResult.getElementsByTagName("MOVIE_LIST")[0].getElementsByTagName("MOVIE").length; k++) {
-  		tagMovie = xmlResult.getElementsByTagName("MOVIE_LIST")[0].getElementsByTagName("MOVIE")[k];
-  		
-  		movie = new MovieBean();
-  		movie.id = tagMovie.getAttribute("ID");
-  		movie.movieName = tagMovie.getAttribute("MOVIE_NAME");
-  		movie.englishMovieName = tagMovie.getAttribute("ENGLISH_MOVIE_NAME");
-  		movie.movieTime = tagMovie.getAttribute("TIME");
-  		
-  		movieList.push(movie);
-  	}
-  	
-  	// Liste des cinémas avec les séances
-  	for (var i = 0; i < xmlResult.getElementsByTagName("THEATER").length; i++) {
-  		
-  		tagTheater = xmlResult.getElementsByTagName("THEATER")[i];
-  		tagLocalisation = tagTheater.getElementsByTagName("LOCALISATION")[0];
-  		
-  		
-  		theater = new TheaterBean();
-  		theater.id = tagTheater.getAttribute("ID");
-  		theater.theaterName = tagTheater.getAttribute("THEATER_NAME");
-  		theater.phoneNumber = tagTheater.getAttribute("PHONE_NUMBER");
-  		theater.movieMap = [];
-  		
-  		if (tagLocalisation != null){
-  			localisation = new LocalisationBean();
-  			/*localisation.cityName = tagLocalisation.getAttribute("CITY_NAME");//String
-  			localisation.countryName = tagLocalisation.getAttribute("COUNTRY_NAME"); //String
-  			localisation.countryNameCode = tagLocalisation.getAttribute("COUNTRY_CODE"); //String
-  			localisation.distance = tagLocalisation.getAttribute("DISTANCE"); // Float
-  			localisation.distanceTime = tagLocalisation.getAttribute("DISTANCE_TIME"); // Long
-  			localisation.latitude = tagLocalisation.getAttribute("LATITUDE"); // Double
-  			localisation.longitude = tagLocalisation.getAttribute("LONGITUDE"); // Double
-  			localisation.postalCityNumber = tagLocalisation.getAttribute("POSTAL_CODE"); //String*/
-  			localisation.searchQuery = tagLocalisation.getAttribute("SEARCH_QUERY"); //String
-  			theater.place = localisation;
+	  	this.moreResult = xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("MORE_RESULTS") == 'true';
+	  	
+	  	// On récupère le mode d'affichage et on met à jour le requestBean associé
+	  	this.theaterView = xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("NEAR_RESP") == 'true';
+	  	this.requestBean.nearResp = this.theaterView;
+	  	console.log("ResultatsAssistant.parsingXml : xmlResults : "+xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("NEAR_RESP")+", theaterView : "+this.theaterView)
+	  	
+	  	
+	  	// Liste des films
+	  	for (var k = 0; k < xmlResult.getElementsByTagName("MOVIE_LIST")[0].getElementsByTagName("MOVIE").length; k++) {
+	  		tagMovie = xmlResult.getElementsByTagName("MOVIE_LIST")[0].getElementsByTagName("MOVIE")[k];
+	  		
+	  		movie = new MovieBean();
+	  		movie.id = tagMovie.getAttribute("ID");
+	  		movie.movieName = tagMovie.getAttribute("MOVIE_NAME");
+	  		movie.englishMovieName = tagMovie.getAttribute("ENGLISH_MOVIE_NAME");
+	  		movie.movieTime = tagMovie.getAttribute("TIME");
+	  		
+	  		movieList.push(movie);
+	  	}
+	  	
+	  	// Liste des cinémas avec les séances
+	  	var childs = xmlResult.getElementsByTagName("NEAR_RESP")[0].childNodes;
+	  	var tagTheaterList = null;
+	  	var tagChild = null;
+	  	for (var i = 0; i < childs.length; i++){
+	  		tagChild = childs[i];
+	  		if (tagChild.tagName == "THEATER_LIST"){
+	  			tagTheaterList = tagChild;
+	  			break;
+	  		}
+	  	}
+	  	if (tagTheaterList != null){
+		  	for (var i = 0; i < tagTheaterList.getElementsByTagName("THEATER").length; i++) {
+		  		
+		  		tagTheater = tagTheaterList.getElementsByTagName("THEATER")[i];
+		  		tagLocalisation = tagTheater.getElementsByTagName("LOCALISATION")[0];
+		  		
+		  		
+		  		theater = new TheaterBean();
+		  		theater.id = tagTheater.getAttribute("ID");
+		  		theater.theaterName = tagTheater.getAttribute("THEATER_NAME");
+		  		theater.phoneNumber = tagTheater.getAttribute("PHONE_NUMBER");
+		  		theater.movieMap = [];
+		  		
+		  		if (tagLocalisation != null){
+		  			localisation = new LocalisationBean();
+		  			/*localisation.cityName = tagLocalisation.getAttribute("CITY_NAME");//String
+		  			localisation.countryName = tagLocalisation.getAttribute("COUNTRY_NAME"); //String
+		  			localisation.countryNameCode = tagLocalisation.getAttribute("COUNTRY_CODE"); //String
+		  			localisation.distance = tagLocalisation.getAttribute("DISTANCE"); // Float
+		  			localisation.distanceTime = tagLocalisation.getAttribute("DISTANCE_TIME"); // Long
+		  			localisation.latitude = tagLocalisation.getAttribute("LATITUDE"); // Double
+		  			localisation.longitude = tagLocalisation.getAttribute("LONGITUDE"); // Double
+		  			localisation.postalCityNumber = tagLocalisation.getAttribute("POSTAL_CODE"); //String*/
+		  			localisation.searchQuery = tagLocalisation.getAttribute("SEARCH_QUERY"); //String
+		  			theater.place = localisation;
+		  		}
+		  		
+		  		theaterList.push(theater);
+		  		
+		  		for (var j = 0; j < tagTheater.getElementsByTagName("MOVIE").length; j++) {
+		  			
+		  			tagMovie = tagTheater.getElementsByTagName("MOVIE")[j];
+		  			movie = this.findMovie(movieList, tagMovie.getAttribute("ID"));
+		  			if (movie != null){
+		  				projectionList = [];
+		  				for(var k = 0; k < tagMovie.getElementsByTagName("PROJECTION").length; k++) {
+		  					tagProjection = tagTheater.getElementsByTagName("MOVIE")[j].getElementsByTagName("PROJECTION")[k];
+		  					projection = new ProjectionBean();
+		  					projection.showtime = tagProjection.getAttribute("TIME");
+		  					projection.lang = tagProjection.getAttribute("LANG");
+		  					projection.reservationLink = tagProjection.getAttribute("RESERVATION_URL");
+		  					
+		  					projectionList.push(projection);
+		  					
+		  				}
+		  				theater.movieMap.push({id:movie.id, data:projectionList});
+		  			}
+		  		}
+			  }
   		}
-  		
-  		theaterList.push(theater);
-  		
-  		for (var j = 0; j < tagTheater.getElementsByTagName("MOVIE").length; j++) {
-  			
-  			tagMovie = tagTheater.getElementsByTagName("MOVIE")[j];
-  			movie = this.findMovie(movieList, tagMovie.getAttribute("ID"));
-  			if (movie != null){
-  				projectionList = [];
-  				for(var k = 0; k < tagMovie.getElementsByTagName("PROJECTION").length; k++) {
-  					tagProjection = tagTheater.getElementsByTagName("MOVIE")[j].getElementsByTagName("PROJECTION")[k];
-  					projection = new ProjectionBean();
-  					projection.showtime = tagProjection.getAttribute("TIME");
-  					projection.lang = tagProjection.getAttribute("LANG");
-  					projection.reservationLink = tagProjection.getAttribute("RESERVATION_URL");
-  					
-  					projectionList.push(projection);
-  					
-  				}
-  				theater.movieMap.push({id:movie.id, data:projectionList});
-  			}
-  		}
-	   }
 	  } catch(e) {
       console.log('ResultatAssistant.parsingXml : error : '+ e.message);
     }

@@ -23,7 +23,7 @@ function CineShowTimeCst(){
 	this.BLN_DEBUG = false;
 	this.LOG_DEBUG = false;
 	
-	this.URL_SERVER = "http://8.latest.binomed-cineshowtime-palm.appspot.com/";
+	this.URL_SERVER = "http://9.latest.binomed-cineshowtime-palm.appspot.com/";
 	this.URL_DIST   = "http://maps.google.com/maps/nav?q=from:#{from}%20to:#{to}&ie=utf8&oe=utf8&sensor=false&key=#{key}";
 	
 	this.GOOGLE_MAPS_KEY = "ABQIAAAA_CXWycTt44_mg_LxLiivrhQz_QRRxxi6fl4J7vAWJHWRTZbJMxRlf6zcT0T6E3oP7DzsBFXaWyFfjg";
@@ -31,7 +31,15 @@ function CineShowTimeCst(){
 	
 	
 	this.LAST_CHANGE_MESSAGE = "<ul class='versions'>"
-	                        + "  <li class='current'>V1.3.2</li>"
+							+ "  <li class='current'>V1.3.4</li>"
+							+ "    <ul>"
+							+ "      <li>Minor update to match server changes</li>"                       
+							+ "    </ul>"         
+	                        + "  <li>V1.3.3</li>"
+              						+ "    <ul>"
+              						+ "      <li>Fixed some other \"loading\" bugs</li>"                       
+              						+ "    </ul>"         
+	                        + "  <li>V1.3.2</li>"
               						+ "    <ul>"
               						+ "      <li>Fixed stuck \"loading\" issue</li>"                       
               						+ "    </ul>"         
