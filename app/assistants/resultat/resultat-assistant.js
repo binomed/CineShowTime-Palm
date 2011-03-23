@@ -720,7 +720,7 @@ ResultatAssistant.prototype.showResultsWithPreferences = function(theaterList, m
 			this.theaterList = theaterListTmp;
 			this.showResults(theaterListTmp, movieList);
 			break;
-		case this.preferences.VALUE_PREF_SORT_THEATER_DISTANCE:
+		case this.preferences.VALUE_PREF_SORT_THEATER_DISTANCE:      
 			theaterListTmp = sort(theaterList, new ComparatorTheaterDistance());
 			this.theaterList = theaterListTmp;
 			this.showResults(theaterListTmp, movieList);
@@ -1004,8 +1004,9 @@ ResultatAssistant.prototype.showResultsMovie = function(theaterList, movieList) 
 				distanceCinema = parseFloat(theater.place.distance)/1000;	
 				distanceCinema = distanceCinema + ' ' + $L("measure_1");
 			} else {
-				// TODO Calcul
-				distanceCinema = Math.round((parseFloat(theater.plcae.distance)/1000)*0.621371192*100)/100;	
+				// TODO Calcul                                      
+				// GR : 20100710 - Erreur plaec au lieu de place
+				distanceCinema = Math.round((parseFloat(theater.place.distance)/1000)*0.621371192*100)/100;	
 				distanceCinema = distanceCinema + ' ' + $L("measure_2");
 			}
 		} else {

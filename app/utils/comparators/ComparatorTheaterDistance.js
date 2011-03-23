@@ -7,6 +7,8 @@ ComparatorTheaterDistance.prototype.compare = function(theater1, theater2){
 	var dist1 = -1;
 	var dist2 = -1;
 	if ((theater1.place != null) && (theater2.place != null)){
+	  console.log("ComparatorTheaterDistance.compare : theater1 : "+ JSON.stringify(theater1));
+	  console.log("ComparatorTheaterDistance.compare : theater2 : "+ JSON.stringify(theater2));
 		dist1 = parseFloat(theater1.place.distance);
 		if (isNaN(dist1)){
 			dist1 = -1;

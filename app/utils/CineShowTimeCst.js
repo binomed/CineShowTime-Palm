@@ -31,7 +31,11 @@ function CineShowTimeCst(){
 	
 	
 	this.LAST_CHANGE_MESSAGE = "<ul class='versions'>"
-	                         + "  <li class='current'>V1.3.1</li>"
+	                        + "  <li class='current'>V1.3.2</li>"
+              						+ "    <ul>"
+              						+ "      <li>Fixed stuck \"loading\" issue</li>"                       
+              						+ "    </ul>"         
+	                        + "  <li>V1.3.1</li>"
               						+ "    <ul>"
               						+ "      <li>Fixed \"Trailers\" translation</li>"                       
               						+ "      <li>Fixed Trailers loading issue</li>"                       
