@@ -21,9 +21,9 @@ function CineShowTimeCst(){
 	this.ERROR_CUSTOM_MESSAGE = 4;
 	
 	this.BLN_DEBUG = false;
-	this.LOG_DEBUG = true;
+	this.LOG_DEBUG = false;
 	
-	this.URL_SERVER = "http://7.latest.binomed-cineshowtime-palm.appspot.com/";
+	this.URL_SERVER = "http://8.latest.binomed-cineshowtime-palm.appspot.com/";
 	this.URL_DIST   = "http://maps.google.com/maps/nav?q=from:#{from}%20to:#{to}&ie=utf8&oe=utf8&sensor=false&key=#{key}";
 	
 	this.GOOGLE_MAPS_KEY = "ABQIAAAA_CXWycTt44_mg_LxLiivrhQz_QRRxxi6fl4J7vAWJHWRTZbJMxRlf6zcT0T6E3oP7DzsBFXaWyFfjg";
@@ -31,11 +31,16 @@ function CineShowTimeCst(){
 	
 	
 	this.LAST_CHANGE_MESSAGE = "<ul class='versions'>"
-							+ "  <li class='current'>V1.2.1</li>"
-							+ "    <ul>"
-							+ "      <li>Use Youtube page for searching trailers</li>"                       
-							+ "    </ul>"               
-	                        + "  <li>V1.2.0</li>"
+						+ "  <li class='current'>V1.3.0</li>"
+						+ "    <ul>"
+						+ "      <li>Addition of trailers in movie screen</li>"                       
+						+ "      <li>Optimization for getting movie screen</li>"                       
+						+ "    </ul>"               
+						+ "  <li class='current'>V1.2.1</li>"
+						+ "    <ul>"
+						+ "      <li>Use Youtube page for searching trailers</li>"                       
+						+ "    </ul>"               
+                        + "  <li>V1.2.0</li>"
                           + "    <ul>"
                           + "      <li>Added \"light\" display theme</li>"
                           + "      <li>Added \"what's new\" feature</li>"

@@ -42,5 +42,6 @@
     {"source": "app/model/LocalisationBean.js"},
     {"source": "app/model/ProjectionBean.js"},
     {"source": "app/model/RequestBean.js"},
-    {"source": "app/model/ReviewBean.js"}
+    {"source": "app/model/ReviewBean.js"},
+    {"source": "app/model/VideoBean.js"}
 ]

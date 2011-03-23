@@ -19,4 +19,5 @@ function MovieBean(){
 	this.actorList = null; //String
 	this.directorList = null; //String
 	this.reviews = null; // List<ReviewBean>
+	this.videos = null; // List<VideoBean>
 }

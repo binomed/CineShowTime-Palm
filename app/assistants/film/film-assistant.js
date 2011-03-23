@@ -60,7 +60,9 @@ FilmAssistant.prototype.setup = function() {
 	
 	this.controller.setupWidget("rateScroll", {mode: 'vertical'}, {}); 
 	this.controller.setupWidget("stScroll", {mode: 'vertical'}, {}); 
-	this.controller.setupWidget("movieScroll", {mode: 'vertical'}, {}); 
+	this.controller.setupWidget("movieScroll", {mode: 'vertical'}, {});
+  
+  this.controller.setupWidget("trailerScroll", {mode: 'horizontal'}, {}); 
 	
 	//this.controller.setupWidget("rateScroll", {mode: 'vertical'}, {}); 
 	
@@ -77,6 +79,9 @@ FilmAssistant.prototype.setup = function() {
 	
 	var content = Mojo.View.render({object: {id:"",title:$L("plot")}, template: 'title-template'});
 	$("titleResume").innerHTML = content;
+	
+	var content = Mojo.View.render({object: {id:"",title:$L("Bandes-Annonces")}, template: 'title-template'});
+	$("titleTrailers").innerHTML = content;
 			
 	content = Mojo.View.render({object: {movieLabel:$L("movieLabel"),showtimeLabel:$L("showtimeLabel"),rateLabel:$L("rateLabel")}, template: 'film/tab-template'});
 	$('switchDisplay').innerHTML = content;
@@ -296,8 +301,27 @@ FilmAssistant.prototype.display = function() {
 	
 	if(this.movie.rate != null && this.movie.rate != "") {
 		movie.push({key:$L("txtRate"), value:displayStars(this.movie.rate,10) + " (" + this.movie.rate + "/10)"});
+	}           
+	
+	for (var i = 0; i < this.movie.videos.length; i++) {
+	   if(this.movie.videos[i].num != i) {
+        this.movie.videos[i].num = num;
+     }
 	}
 	
+	var content = Mojo.View.render({collection: this.movie.videos, template: 'film/video-template'});
+	$('tableTrail').innerHTML = "<table class=\"trailers\">"+content+"</table>";
+	
+	for (var i = 0; i < this.movie.videos.length; i++) {
+     console.log('FilmAssistant.display : listen : trailer'+i); 
+	   Mojo.Event.listen(this.controller.get('trailer'+i),Mojo.Event.tap,this.displayTrailer.bind(this));
+	}
+	
+	if(this.movie.videos.length == 0) {
+    $('titleTrailers').hide();
+    $('trailers').hide();
+  }
+		
 	var links = linkFct();	
 	if(links != "") {
 		movie.push({key:$L(""), value:links});
@@ -572,6 +596,25 @@ FilmAssistant.prototype.selectRadioSeances = function(event) {
 
 }
 
+FilmAssistant.prototype.displayTrailer = function(event) {
+  var tg = event.target.id;
+  var id = parseInt(tg.substring(7));
+  console.log('FilmAssistant.displayTrailer : event target : ' + tg + ', id : '+ id);
+  
+  var args = {
+      appId: "com.palm.app.videoplayer",
+      name: "nowplaying"
+   };
+
+ var params = {
+    target: this.movie.videos[id].url,
+    title: this.movie.videos[id].title
+ };
+
+ this.controller.stageController.pushScene(args, params);
+  
+}
+
 FilmAssistant.prototype.selectRadioCritiques = function(event) {
 	$("radioFilm").removeClassName("tab_selected");
 	$("radioSeances").removeClassName("tab_selected");
@@ -734,6 +777,25 @@ FilmAssistant.prototype.parsingXml = function(xmlResult) {
 	}
 	movie.reviews = reviewList;
 	
+	var tagVideo = null;
+	var videoList = [];
+	var video = null;
+	for (var k = 0; k < tagMovie.getElementsByTagName("VIDEO").length; k++) {
+	  tagVideo = tagMovie.getElementsByTagName("VIDEO")[k];
+		video = new VideoBean();
+		
+		video.movieId = movie.id;
+		//video.id = k;
+		video.num = k;
+		video.url = tagVideo.getAttribute("URL_VIDEO"); 
+		video.title = decode(tagVideo.getAttribute("VIDEO_NAME")); 
+		video.img = tagVideo.getAttribute("URL_IMG"); 
+		
+		videoList.push(video);
+	}
+	movie.videos = videoList;
+	
+	
 	return movie;
 }
 
@@ -757,7 +819,7 @@ FilmAssistant.prototype.launchRequest = function() {
 	var place = encode(this.requestBean.cityName);
 	var enName = encode(this.movie.englishMovieName);
 	var name = encode(this.movie.movieName);
-	var url = this.cst.URL_SERVER+'imdb?output=xml&oe=UTF-8&place='+place+'&mid='+this.movie.id+'&moviecurlangname='+name+'&moviename='+enName+'&ie=UTF-8&lang='+this.locale;
+	var url = this.cst.URL_SERVER+'imdb?output=xml&oe=UTF-8&place='+place+'&mid='+this.movie.id+'&moviecurlangname='+name+'&moviename='+enName+'&ie=UTF-8&lang='+this.locale+'&trailer=true';
 	
 	console.log('FilmAssistant.launchRequest : url : ' + url);
 	
@@ -776,7 +838,7 @@ FilmAssistant.prototype.gotResults = function(transport) {
 
 	// Convert the string to an XML object
 	var xmlResult = (new DOMParser()).parseFromString(xmlstring, "text/xml");
-	// console.log('FilmAssistant.gotResults : XML : '+ xmlstring);
+	console.log('FilmAssistant.gotResults : XML : '+ xmlstring);
 	
 	this.loadResults(xmlResult);
 }
@@ -940,6 +1002,10 @@ FilmAssistant.prototype.callBackCompleteMovie = function(movie) {
 };
 FilmAssistant.prototype.callBackCompleteMovieReviews = function(movie) {
 	console.log('FilmAssistant.callBackCompleteMovieReviews : ');
+	this.dbHelper.completeMovieYoutube(this.callBackCompleteMovieYoutube.bind(this), this.movie);
+};
+FilmAssistant.prototype.callBackCompleteMovieYoutube = function(movie) {
+	console.log('FilmAssistant.callBackCompleteMovieYoutube : ');
 	this.display();
 };
 
@@ -1019,23 +1085,34 @@ FilmAssistant.prototype.translateFailure = function (transport) {
 	});	  	
 };
 
-FilmAssistant.prototype.results = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-									"<IMDB_RESP>" +
-									"    <MOVIE ACTORS = \"Daniel+Day-Lewis%7CMarion+Cotillard%7CPen%C3%A9lope+Cruz%7CNicole+Kidman%7CJudi+Dench%7CKate+Hudson%7CSophia+Loren%7CStacy+Ferguson%7CRicky+Tognazzi%7CGiuseppe+Cederna%7CElio+Germano%7CAndrea+Di+Stefano%7CRoberto+Nobile%7CRomina+Carancini%7CAlessandro+Denipotti\" DIRECTORS = \"Rob+Marshall\" ID = \"a184cf380a530bdb\" IMDB_ID = \"0875034\" MOVIE_NAME = \"Nine\" RATE = \"6.4\" STYLE = \"Drama|Musical|Romance\" URL_IMG = \"http://ia.media-imdb.com/images/M/MV5BMTI5OTY2MDAzN15BMl5BanBnXkFtZTcwNzcxODIwMw@@._V1._SX93_SY140_.jpg\" URL_WIKIPEDIA = \"http%3A%2F%2Ffr.wikipedia.org%2Fwiki%2FNine_%2528film%252C_2009%2529\">" +
-									"        <DESC IMDB_DESC = \"false\">Guido+Contini+est+le+plus+grand+r%C3%A9alisateur+de+son+%C3%A9poque.+V%C3%A9n%C3%A9r%C3%A9+par+les+critiques+et+adul%C3%A9+par+le+public%2C+il+n%27a+qu%27un+seul+point+faible+%3A+les+jolies+femmes+%21+Tiraill%C3%A9+entre+sa+sublime+%C3%A9pouse+et+sa+sulfureuse+ma%C3%AEtresse%2C+harcel%C3%A9+par+une+s%C3%A9duisante+journaliste%2C+subjugu%C3%A9+par+la+star+de+son+prochain+film%2C+Guido+ne+sait+plus+o%C3%B9+donner+de+la+t%C3%AAte.+Soutenu+par+sa+confidente+et+sa+m%C3%A8re%2C+parviendra-t-il+%C3%A0+r%C3%A9sister+%C3%A0+toutes+ces+tentations+%3F+</DESC>" +
-									"        <REVIEWS>" +
-									"            <REVIEW AUTHOR = \"Frankithon.\" RATE = \"2.5\" SOURCE = \"www.cinemovies.fr\" URL_REVIEW = \"http://www.cinemovies.fr/fiche_critiquem.php?IDfilm=15571\">Que+peut-il+y+avoir+de+plus+contre-nature+qu%27une+com%C3%A9die+musicale+%3F+S%27arr%C3%AAter+de+jouer+pour+soudain+pousser+la+chansonnette+%21+Il+ya+la+parenth%C3%A8se+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"FrancoisPincemi.\" RATE = \"3.5\" SOURCE = \"www.cinemovies.fr\" URL_REVIEW = \"http://www.cinemovies.fr/fiche_critiquem.php?IDfilm=15571\">A+reserver+aux+amateurs+de+chansons+style+Folies+bergeres%2C+mais+aussi+de+Rome+et+de+Fellini.+Les+autres+trouveront+le+temps+long...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"predator37\" RATE = \"1.5\" SOURCE = \"www.premiere.fr\" URL_REVIEW = \"http://www.premiere.fr/film/Nine\">Un+hommage+au+8+%C2%BD+de+Fellini%2C+on+en+est+malheureusement+bien+loin.+Cela+faisait+longtemps+qu%27on+nous+parlait+de+ce+film+%C3%A9v%C3%A9nement+au+casting+de+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"notluf.\" RATE = \"5.0\" SOURCE = \"www.cinemovies.fr\" URL_REVIEW = \"http://www.cinemovies.fr/fiche_critiquem.php?IDfilm=15571\">J%27avais+oubli%C3%A8+de+le+noter+Comme+le+dit+le+titre+de+mon+artcicle+10%2F10</REVIEW>" +
-									"            <REVIEW AUTHOR = \"jch2o\" RATE = \"3.5\" SOURCE = \"www.nord-cinema.com\" URL_REVIEW = \"http://www.nord-cinema.com/fiches/critiques3567.html\">Avec+%22Nine%22+%3D+9+Rob+Marshall+ne+s%27est+pas+beaucoup+creus%C3%A9+pour+trouver+le+titre+de+son+film+qui+est+un+remake+de+%228+1%2F2%22de+Fellini.+%28pas+vu+l+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"Guillaume\" RATE = \"3.0\" SOURCE = \"www.krinein.com\" URL_REVIEW = \"http://www.krinein.com/cinema/nine-9696.html\">Nine+n%27est+pas+un+film+choral.+Nine+n%27est+pas+non+plus+une+com%C3%A9die+musicale+avec+chorale+fa%C3%A7on+film+avec+Jugnot.+Non%2C+Nine+c%27est+plut%C3%B4t+un+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"traversay\" RATE = \"1.5\" SOURCE = \"www.premiere.fr\" URL_REVIEW = \"http://www.premiere.fr/film/Nine\">Nine+%3F+Nein%2C+nein%2C+nein+%21+Peut-%C3%AAtre+que+sur+sc%C3%A8ne+la+com%C3%A9die+musicale+avait+un+soup%C3%A7on+d%27int%C3%A9r%C3%AAt+mais+son+adaptation+au+cin%C3%A9ma+par+Rob+Marshall+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"mycityisny\" RATE = \"3.0\" SOURCE = \"www.nord-cinema.com\" URL_REVIEW = \"http://www.nord-cinema.com/fiches/critiques3567.html\">Si+vous+n%27avez+pas+vu+l%27original+par+Fellini%2C+cela+ne+vous+emp%C3%AAchera+pas+d%27appr%C3%A9cier+NINE.+A+la+v%C3%A9rit%C3%A9%2C+je+n%27avais+pas+envie+de+le+voir+car+les+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"bruno216\" RATE = \"1.5\" SOURCE = \"www.premiere.fr\" URL_REVIEW = \"http://www.premiere.fr/film/Nine\">D%C3%A8s+le+d%C3%A9part+et+la+premi%C3%A8re+chor%C3%A9graphie+%2C+on+le+sent+tr%C3%A8s+moyen+%2C+ce+film.+Et+puis+%2C+on+attend+quand+m%C3%AAme+.+Le+souvenir+de+Chicago+reste+si+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"brunoco\" RATE = \"1.5\" SOURCE = \"www.premiere.fr\" URL_REVIEW = \"http://www.premiere.fr/film/Nine\">Quand+je+vois+une+revue+comparer+ce+film+%C3%A0+Chicago+%2C+je+me+dis+qu%27il+ya+des+choses+incomparables.+Autant+Chicago+%C3%A9tait+inventif+et+d%27une+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"betelgeuse\" RATE = \"3.0\" SOURCE = \"www.cinemaclock.com\" URL_REVIEW = \"http://www.cinemaclock.com/aw/crva.aw/que/Montreal/f/19693/0/Nine.html\">Un+peu+d%C3%A9cevant.+Les+chor%C3%A9graphies+sont+int%C3%A9ressantes%2C+c%27est+la+meilleure+partie+du+film.+C%27est+un+peu+ironique+de+faire+un+film+sans+sc%C3%A9nario+sur+...</REVIEW>" +
-									"            <REVIEW AUTHOR = \"michele\" RATE = \"5.0\" SOURCE = \"www.cinemaclock.com\" URL_REVIEW = \"http://www.cinemaclock.com/aw/crva.aw/que/Montreal/f/19693/0/Nine.html\">Pour+les+amoureux+du+cin%C3%A9ma%2C+g%C3%A9nial+et+tr%C3%A8s+%C3%A9mouvant.</REVIEW>" +
-									"        </REVIEWS>" +
-									"    </MOVIE>" +
-									"</IMDB_RESP>";
+FilmAssistant.prototype.results = "<IMDB_RESP>" +
+                                  "    <MOVIE ACTORS = \"Steve+Carell%7CTina+Fey%7CMark+Wahlberg%7CTaraji+P.+Henson%7CJimmi+Simpson%7CCommon%7CWilliam+Fichtner%7CLeighton+Meester%7CKristen+Wiig%7CMark+Ruffalo%7CJames+Franco%7CMila+Kunis%7CBill+Burr%7CJonathan+Morgan+Heit%7CSavannah+Paige+Rae\" DIRECTORS = \"Shawn+Levy\" ID = \"ee62226f902861f9\" IMDB_ID = \"1279935\" MOVIE_NAME = \"CRAZY NIGHT\" RATE = \"6.9\" STYLE = \" Comedie | Romance | Thriller\" URL_IMG = \"http://ia.media-imdb.com/images/M/MV5BODgwMjM2ODE4M15BMl5BanBnXkFtZTcwMTU2MDcyMw@@._V1._SX95_SY140_.jpg\" URL_WIKIPEDIA = \"http%3A%2F%2Ffr.wikipedia.org%2Fwiki%2FCrazy_Night\" YEAR = \"2010\">" +
+                                  "        <DESC IMDB_DESC = \"false\">Pour+tenter+de+rompre+la+routine+qui+s%27installe+dans+leur+couple%2C+Phil+et+Claire+Foster+d%C3%A9cident+de+passer+une+soir%C3%A9e+extraordinaire+dans+le+restaurant+le+plus+en+vue+de+Manhattan.+Sans+r%C3%A9servation%2C+ils+n%27ont+d%27autre+choix+que+de+se+faire+passer+pour+un+autre+couple%2C+les+Triplehorn%2C+afin+d%27obtenir+une+table.+Mais+%C3%A0+peine+leurs+entr%C3%A9es+termin%C3%A9es%2C+leur+imposture+est+d%C3%A9voil%C3%A9e+par+des+gangsters+impitoyables+%C3%A0+la+recherche+des+Triplehorn.+Les+Foster+sont+oblig%C3%A9s+de+fuir+pour+sauver+leur+peau%2C+et+se+retrouvent+alors+plong%C3%A9s+dans+une+s%C3%A9rie+improbable+d%27embrouilles+%C3%A0+travers+la+ville.+C%27est+le+d%C3%A9but+d%27une+nuit+d%C3%A9mente+qui+va+leur+permettre+de+faire+exploser%2C+entre+autres%2C+la+monotonie+de+leur+couple...+Une+chose+est+s%C3%BBre+%3A+ils+ne+sont+pas+pr%C3%AAts+d%27oublier+cette+soir%C3%A9e.+</DESC>" +
+                                  "        <REVIEWS>" +
+                                  "            <REVIEW AUTHOR = \"isabel-g-grives\" RATE = \"0.0\" SOURCE = \"www.cinefil.com\" URL_REVIEW = \"http://www.cinefil.com/film/crazy-night-2/critiques\">Allez%2C+je+pensais+qu%27avec+deux+comiques+de+cette+envergure%2C+j%27allais+me+plier+de+rire+%C3%A0+chaque+gag.+A%C3%AFe%2C+malheureusement%2C+non.+Certains+moments+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"gotchi\" RATE = \"0.0\" SOURCE = \"www.cinefil.com\" URL_REVIEW = \"http://www.cinefil.com/film/crazy-night-2/critiques\">Si+vous+aimez+l%27humour+potache+%C3%A0+l%27am%C3%A9ricaine.+si+vous+aimez+steve+carell+et+tina+fey%2C+vous+devez+y+aller.+j%27ai+ri+de+bon+c%C5%93ur+sans+que+mes+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"bibi\" RATE = \"0.5\" SOURCE = \"www.nord-cinema.com\" URL_REVIEW = \"http://www.nord-cinema.com/fiches/critiques3686.html\">Dans+la+s%C3%A9rie+big+navet%2C+voici+%22Crazy+night%22%21+Difficile+de+faire+plus+affligeant.+Deux+stars+du+comique%2C+ai-je+bien+lu+%3F+D%C3%A8s+la+premi%C3%A8re+minute%2C+j+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"nanou54*\" RATE = \"0.0\" SOURCE = \"www.cinefil.com\" URL_REVIEW = \"http://www.cinefil.com/film/crazy-night-2/critiques\">Je+pensais+assister+%C3%A0+une+bonne+com%C3%A9die%2C+pouaf%2C+d%C3%A9%C3%A7ue.+Gags+trop+gros%2C+le+film+n%27est+pas+dr%C3%B4le%2C+une+d%C3%A9ception+quoi+%21+Franchement+il+ya+mieux+%C3%A0+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"chti64\" RATE = \"0.0\" SOURCE = \"www.cinefil.com\" URL_REVIEW = \"http://www.cinefil.com/film/crazy-night-2/critiques\">Tr%C3%A8s+d%C3%A9%C3%A7ue.+J%27ai+%C3%A0+peine+souri+%21+J%27avoue+que+ne+n%27ai+pas+entendu+rire+non+plus+dans+la+salle+%21+Trop+de+blabla.+Dommage%2C+la+bande+annonce+%C3%A9tait+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"Jujulcactus.\" RATE = \"0.0\" SOURCE = \"www.cinemovies.fr\" URL_REVIEW = \"http://www.cinemovies.fr/fiche_critiquem.php?IDfilm=18374\">%C2%ABCrazy+Night%C2%BB+est+une+grosse+com%C3%A9die+%C3%A0+la+sauce+am%C3%A9ricaine%2C+pourtant+je+l%27attendais+avec+une+certaine+impatience+pour+ses+deux+interp%C3%A8tes+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"chantalou\" RATE = \"1.0\" SOURCE = \"www.nord-cinema.com\" URL_REVIEW = \"http://www.nord-cinema.com/fiches/critiques3686.html\">Et+bien+voici+une+com%C3%A9die+consternante+et+sans+finesse.+Tout+ceci+est+typiquement+Am%C3%A9ricain+et+le+spectateur+moyen+Fran%C3%A7ais+est+bien+largu%C3%A9.+Le+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"sophiedamidot\" RATE = \"0.0\" SOURCE = \"www.cinefil.com\" URL_REVIEW = \"http://www.cinefil.com/film/crazy-night-2/critiques\">On+rit+de+toutes+les+situations+%21+Un+des+tr%C3%A8s+rares+films+distrayants+que+j%27ai+pu+voir...+Les+acteurs+sont+%C3%A9patants%2C+tout+sp%C3%A9cialement+les+sc%C3%A8nes+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"dofin33\" RATE = \"0.0\" SOURCE = \"www.cinefil.com\" URL_REVIEW = \"http://www.cinefil.com/film/crazy-night-2/critiques\">2+gros+comiques+am%C3%A9ricains%3B+on+nous+annon%C3%A7ait+des+gags+%C3%A9normes.+Finalement+2+ou+3+gags+sympas%2C+une+grosses+cascade+mais+rien+de+tr%C3%A8s+original.+%C3%A7a+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"Frankithon.\" RATE = \"0.0\" SOURCE = \"www.cinemovies.fr\" URL_REVIEW = \"http://www.cinemovies.fr/fiche_critiquem.php?IDfilm=18374\">Peu+de+temps+apr%C3%A8s+les+Morgan+%28le+grima%C3%A7ant+Hugh+Grant+et+Sarah+Jessica+Parker%29%2C+les+Foster+d%C3%A9barque+sur+grand+%C3%A9cran.+Le+th%C3%A8me+est+identique%2C+un+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"Riton32\" RATE = \"0.0\" SOURCE = \"www.cinefil.com\" URL_REVIEW = \"http://www.cinefil.com/film/crazy-night-2/critiques\">C%27est+vrai+qu%27au+d%C3%A9part+l%27id%C3%A9e+n%27est+pas+mauvaise.+Un+couple+en+mal+d%27amour+qui+usurpe+une+place+r%C3%A9serv%C3%A9+au+resto.+Apr%C3%A8s%2C+il+faut+d%C3%A9velopper.+Et+...</REVIEW>" +
+                                  "            <REVIEW AUTHOR = \"tina 75\" RATE = \"0.0\" SOURCE = \"www.cinefil.com\" URL_REVIEW = \"http://www.cinefil.com/film/crazy-night-2/critiques\">Je+m%27attendais+%C3%A0+un+film+tr%C3%A8s+amusant+puisque+certains+journaux+l%27avaient+compar%C3%A9+%C3%A0+%22very+bad+trip%22+%3B+grosse+d%C3%A9ception%2C+ce+n%27est+vraiment+pas+...</REVIEW>" +
+                                  "        </REVIEWS>" +
+                                  "        <VIDEOS>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/px0oDjWsxwQ/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=px0oDjWsxwQ&amp;feature=youtube_gdata\" VIDEO_NAME = \"Crazy+Night+Bande+Annonce+VOST\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/y9uszOKQmCs/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=y9uszOKQmCs&amp;feature=youtube_gdata\" VIDEO_NAME = \"Crazy+Night+Bande+Annonce+VF\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/ZchvefNcFbE/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=ZchvefNcFbE&amp;feature=youtube_gdata\" VIDEO_NAME = \"CRAZY+NIGHT+Extrait+2+Mark+Walhberg+VF\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/9KQyFtFkYLo/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=9KQyFtFkYLo&amp;feature=youtube_gdata\" VIDEO_NAME = \"Crazy+Night+-+Bloopers\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/iFFGH6kzbsQ/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=iFFGH6kzbsQ&amp;feature=youtube_gdata\" VIDEO_NAME = \"Crazy+Night\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/xUs8Z0w6voE/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=xUs8Z0w6voE&amp;feature=youtube_gdata\" VIDEO_NAME = \"Crazy+night+VOST\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/kTQw_tNGA7Q/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=kTQw_tNGA7Q&amp;feature=youtube_gdata\" VIDEO_NAME = \"Night+and+the+City+%281950%29+Trailer\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/UvI4t69so7Q/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=UvI4t69so7Q&amp;feature=youtube_gdata\" VIDEO_NAME = \"YanooBlog+-+Sorties+cin%C3%A9+12%2F05%2F10\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/KvZML6CCID4/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=KvZML6CCID4&amp;feature=youtube_gdata\" VIDEO_NAME = \"bande+annonce+Batboy\"/>" +
+                                  "            <VIDEO URL_IMG = \"http://i.ytimg.com/vi/lLFibIkxaPM/hqdefault.jpg\" URL_VIDEO = \"http://www.youtube.com/watch?v=lLFibIkxaPM&amp;feature=youtube_gdata\" VIDEO_NAME = \"La+Chronique+Cin%C3%A9ma+21+mai+2010+3%C3%A8meGauche+TV\"/>" +
+                                  "        </VIDEOS>" +
+                                  "    </MOVIE>" +
+                                  "</IMDB_RESP>";

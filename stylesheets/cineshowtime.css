@@ -141,7 +141,7 @@ body.my-light-backdrop .logo { background:url('../images/logo_light.png') center
 
 .movie_img { margin-right:5px; margin-top:5px; }
 .movie {	font-size:0.8em; line-height:19px;}
-.film_resume { font-size:0.8em; line-height:19px; margin-bottom:20px;}
+.film_resume { font-size:0.8em; line-height:19px; margin-bottom:20px;padding-left:5px;padding-right:5px;}
 
 .info_theater { text-align:center; font-size:0.8em; line-height:16px; }
 .film_title_showtime { float:left; font-size:0.8em; line-height:19px; padding-top:5px; margin-left:5px; }
@@ -149,6 +149,15 @@ body.my-light-backdrop .logo { background:url('../images/logo_light.png') center
 .film_title_actions { float:right; width:30px; height:30px; background:url(../images/palm-button-light.png) no-repeat; margin-top:10px;}
 .film_title_actions:active {background-position-y:-30px;}
 .film_title_actions img {margin-left:3px;margin-top:-5px;}
+
+#titleTrailers {  }
+#trailers     { overflow:auto;  }
+#trailers img { width:120px; }
+#trailerScroll  {width:320px;}
+/*.trailers     { overflow:auto; padding:0px; margin:0px; list-style-type:none; width:auto;}
+.trailers li  { float:left; margin-left:2px; }*/
+
+.trailers td { text-align:center; font-size:0.7em; width:130px; vertical-align:top; }
 
 .maps_button { width:52px; height:52px; background:url(../images/palm-button-light-large.png) no-repeat; margin-top:10px;}
 .maps_button:active {background-position-y:-52px;}
@@ -174,7 +183,7 @@ body.my-light-backdrop .logo { background:url('../images/logo_light.png') center
 .radio_display { position:absolute; left:50%; margin-left:-176px; }
 .tab_container { margin-top:60px; }
 
-.tab_container td {padding-left:5px; padding-right:5px;}
+.tab_container td {}
 
 .palm-dark .next_showtime_film { font-weight:bold; color:white; }
 .palm-dark .future_showtime_film { font-weight:normal; color:lightgrey; }
@@ -210,6 +219,8 @@ body.my-light-backdrop .logo { background:url('../images/logo_light.png') center
 .div_rating { font-size:0.8em; line-height:16px; }
 .no_review { text-align:center;font-size:0.8em;}
 .rate_star { vertical-align:middle; }
+
+#showtimesListContainer { margin-bottom:20px; }
 
 .my-scene-fade-top {
 		position: fixed; 

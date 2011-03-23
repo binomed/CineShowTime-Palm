@@ -408,29 +408,34 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
 	// Gestion des messages d'erreurs.
 	var errorString = null;
 	
+	console.log("ResultatAssistant.loadResults : theater.id : " + theaterList[0].id + ", parseInt : " + parseInt(theaterList[0].id) + ", isNaN : " + isNaN(theaterList[0].id));
+	
+	
 	if (theaterList.length == 1 ){
 		var thTmp = theaterList[0];
 		try{
-			switch (parseInt(thTmp.id)) {
-			case this.cst.ERROR_WRONG_PLACE:
-				errorString = "msgNoPlaceMatch";
-				break;
-			case this.cst.ERROR_WRONG_DATE:
-				errorString = "msgNoDateMatch";
-				break;
-			case this.cst.ERROR_NO_DATA:
-				if (!this.theaterView){
-					errorString = "txtMovieFindValueNotFound";
-				}else{
-					errorString = "msgNoResultRetryLater";
-				}
-				break;
-			case this.cst.ERROR_CUSTOM_MESSAGE:
-				errorString = decode(thTmp.theaterName);
-				break;
-			default:
-				break;
-			}
+		  if(!isNaN(thTmp.id)) {
+  			switch (parseInt(thTmp.id)) {
+  			case this.cst.ERROR_WRONG_PLACE:
+  				errorString = "msgNoPlaceMatch";
+  				break;
+  			case this.cst.ERROR_WRONG_DATE:
+  				errorString = "msgNoDateMatch";
+  				break;
+  			case this.cst.ERROR_NO_DATA:
+  				if (!this.theaterView){
+  					errorString = "txtMovieFindValueNotFound";
+  				}else{
+  					errorString = "msgNoResultRetryLater";
+  				}
+  				break;
+  			case this.cst.ERROR_CUSTOM_MESSAGE:
+  				errorString = decode(thTmp.theaterName);
+  				break;
+  			default:
+  				break;
+  			}
+  		}
 		}catch (e) {			
 			// on catch une erreur car l'id peut être un id (dans ce cas une erreur)
 		}
@@ -448,6 +453,7 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
 	
     try {
           
+      if (!this.cst.BLN_DEBUG) {
     	for(var i = 0; i < this.theaterListResults.length; i++) {
         if(this.theaterListResults[i].place != null && this.theaterListResults[i].place != "null") {
       		place = this.theaterListResults[i].place;
@@ -469,6 +475,12 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
           console.log("ResultatAssistant.loadResults : requete maps : " + $L(this.cst.URL_DIST).interpolate(querymaps));  
     		}
     	}
+    	}
+    	
+    	if(this.cst.BLN_DEBUG) {
+        var fct = this.loadResultsAfterFill.bind(this);
+			   fct();
+      }
       
     } catch (e) {
       console.log("ResultatAssistant.loadResults : error : " + e.message);
@@ -522,26 +534,28 @@ ResultatAssistant.prototype.loadResultsAfterFill = function() {
 	if (theaterList.length == 1 ){
 		var thTmp = theaterList[0];
 		try{
-			switch (parseInt(thTmp.id)) {
-			case this.cst.ERROR_WRONG_PLACE:
-				errorString = "msgNoPlaceMatch";
-				break;
-			case this.cst.ERROR_WRONG_DATE:
-				errorString = "msgNoDateMatch";
-				break;
-			case this.cst.ERROR_NO_DATA:
-				if (!this.theaterView){
-					errorString = "txtMovieFindValueNotFound";
-				}else{
-					errorString = "msgNoResultRetryLater";
-				}
-				break;
-			case this.cst.ERROR_CUSTOM_MESSAGE:
-				errorString = decode(thTmp.theaterName);
-				break;
-			default:
-				break;
-			}         
+		  if(!isNaN(thTmp.id)) {
+  			switch (parseInt(thTmp.id)) {
+  			case this.cst.ERROR_WRONG_PLACE:
+  				errorString = "msgNoPlaceMatch";
+  				break;
+  			case this.cst.ERROR_WRONG_DATE:
+  				errorString = "msgNoDateMatch";
+  				break;
+  			case this.cst.ERROR_NO_DATA:
+  				if (!this.theaterView){
+  					errorString = "txtMovieFindValueNotFound";
+  				}else{
+  					errorString = "msgNoResultRetryLater";
+  				}
+  				break;
+  			case this.cst.ERROR_CUSTOM_MESSAGE:
+  				errorString = decode(thTmp.theaterName);
+  				break;
+  			default:
+  				break;
+  			}         
+  		}
 		}catch (e) {			
 			// on catch une erreur car l'id peut être un id (dans ce cas une erreur)
 		}

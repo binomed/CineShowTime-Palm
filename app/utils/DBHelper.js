@@ -73,6 +73,12 @@ function DBHelper(appVersion){
 	this.KEY_REVIEW_RATE = "rate";
 	this.KEY_REVIEW_TEXT = "text";
 	
+	this.KEY_YOUTUBE_ID = "_id";
+	this.KEY_YOUTUBE_MOVIE_ID = "movieId";
+	this.KEY_YOUTUBE_URL_VIDEO = "url_video";
+	this.KEY_YOUTUBE_URL_IMG = "url_img";
+	this.KEY_YOUTUBE_NAME = "name";
+	
 	this.KEY_VERSION_DB = "db_version";
 	this.KEY_VERSION_APP = "app_version";
 	
@@ -88,11 +94,13 @@ function DBHelper(appVersion){
 	this.DATABASE_FAV_SHOWTIME_TABLE = "favShowtimes";
 	this.DATABASE_REQUEST_TABLE = "movie_request";
 	this.DATABASE_REVIEW_TABLE = "reviews";
+	this.DATABASE_YOUTUBE_TABLE = "youtubes";
 	this.DATABASE_VERSION_TABLE = "versions";
 	this.DATABASE_PREFERENCES_TABLE = "preferences";
 	
 	this.DATABASE_VERSION_PALM = 1;
-	this.DATABASE_VERSION = 26;
+	this.DATABASE_VERSION = 27;
+//	this.DATABASE_VERSION = 26;
 	
 	
 	/* CREATE SCRIPTS*/
@@ -104,6 +112,7 @@ function DBHelper(appVersion){
 	this.DATABASE_CREATE_LOCATION_TABLE = null;
 	this.DATABASE_CREATE_REQUEST_TABLE = null;
 	this.DATABASE_CREATE_REVIEWS_TABLE = null;
+	this.DATABASE_CREATE_YOUTUBE_TABLE = null;
 	this.DATABASE_CREATE_VERSION_TABLE = null;
 	this.DATABASE_CREATE_PREFERENCES_TABLE = null;
 	
@@ -115,6 +124,7 @@ function DBHelper(appVersion){
 	this.DROP_LOCATION_TABLE = null;
 	this.DROP_REQUEST_TABLE = null;
 	this.DROP_REVIEWS_TABLE = null;
+	this.DROP_YOUTUBE_TABLE = null;
 	this.DROP_VERSION_TABLE = null;
 	this.DROP_PREFERENCES_TABLE = null;
 	
@@ -126,6 +136,7 @@ function DBHelper(appVersion){
 	this.DATABASE_INSERT_SHOWTIMES = null;
 	this.DATABASE_INSERT_REQUEST = null;
 	this.DATABASE_INSERT_REVIEWS = null;
+	this.DATABASE_INSERT_YOUTUBE = null;
 	this.DATABASE_INSERT_VERSION = null;
 	this.DATABASE_INSERT_PREFERENCES = null;
 	
@@ -139,6 +150,7 @@ function DBHelper(appVersion){
 	this.DELETE_REQUEST_FROM_TIME = null;
 	this.DELETE_MOVIE = null;
 	this.DELETE_MOVIE_REVIEWS = null;
+	this.DELETE_MOVIE_YOUTUBE = null;
 	this.DELETE_FAV_THEATER = null;
 	this.DELETE_VERSION = null;
 	this.DELETE_PREFERENCE = null;
@@ -154,6 +166,7 @@ function DBHelper(appVersion){
 	this.EXTRACT_LAST_REQUEST = null;
 	this.EXTRACT_FAV = null;
 	this.EXTRACT_REVIEWS = null;
+	this.EXTRACT_YOUTUBES = null;
 	this.EXTRACT_VERSIONS = null;
 	this.EXTRACT_PREFERENCES = null;
 	this.EXTRACT_PREFERENCE_VALUE = null;
@@ -266,6 +279,13 @@ DBHelper.prototype.initDataBase = function (onSucess) {
 		+ ", " + this.KEY_REVIEW_RATE + " double " 
 		+ ", " + this.KEY_REVIEW_TEXT + " text " 
 		+ "); GO;";
+		this.DATABASE_CREATE_YOUTUBE_TABLE = " create table if not exists " + this.DATABASE_YOUTUBE_TABLE
+		+ " (" + this.KEY_YOUTUBE_ID + " integer primary key autoincrement"
+		+ ", " + this.KEY_YOUTUBE_MOVIE_ID + " text " 
+		+ ", " + this.KEY_YOUTUBE_URL_VIDEO + " text " 
+		+ ", " + this.KEY_YOUTUBE_URL_IMG + " text " 
+		+ ", " + this.KEY_YOUTUBE_NAME + " text " 
+		+ "); GO;";
 		this.DATABASE_CREATE_VERSION_TABLE = " create table if not exists " + this.DATABASE_VERSION_TABLE
 		+ " (" + this.KEY_VERSION_DB + " integer primary key"
 		+ ", " + this.KEY_VERSION_APP + " text " 
@@ -283,6 +303,7 @@ DBHelper.prototype.initDataBase = function (onSucess) {
 		this.DROP_LOCATION_TABLE = "DROP TABLE IF EXISTS " + this.DATABASE_LOCATION_TABLE+"; GO;";
 		this.DROP_REQUEST_TABLE = "DROP TABLE IF EXISTS " + this.DATABASE_REQUEST_TABLE+"; GO;";
 		this.DROP_REQVIEWS_TABLE = "DROP TABLE IF EXISTS " + this.DATABASE_REVIEW_TABLE+"; GO;";
+		this.DROP_YOUTUBE_TABLE = "DROP TABLE IF EXISTS " + this.DATABASE_YOUTUBE_TABLE+"; GO;";
 		this.DROP_VERSION_TABLE = "DROP TABLE IF EXISTS " + this.DATABASE_VERSION_TABLE+"; GO;";
 		this.DROP_PREFERENCES_TABLE = "DROP TABLE IF EXISTS " + this.DATABASE_PREFERENCES_TABLE+"; GO;";
 	
@@ -313,6 +334,7 @@ DBHelper.prototype.cleanDataBase = function () {
 		this.dropTableDataBase(this.DROP_LOCATION_TABLE, this.DATABASE_LOCATION_TABLE);
 		this.dropTableDataBase(this.DROP_REQUEST_TABLE, this.DATABASE_REQUEST_TABLE);
 		this.dropTableDataBase(this.DROP_REVIEWS_TABLE, this.DATABASE_REVIEW_TABLE);
+		this.dropTableDataBase(this.DROP_YOUTUBE_TABLE, this.DATABASE_YOUTUBE_TABLE);
 		this.dropTableDataBase(this.DROP_VERSION_TABLE, this.DATABASE_VERSION_TABLE);
 		this.dropTableDataBase(this.DROP_PREFERENCES_TABLE, this.DATABASE_PREFERENCES_TABLE);
 		
@@ -510,6 +532,12 @@ DBHelper.prototype.insertMovie = function (movie) {
 	if (movie.reviews != null){
 		for (var i = 0; i < movie.reviews.length; i++){
 			this.insertReview(movie.reviews[i]);
+		}
+	}
+	// We have to manage insert of youtube
+	if (movie.videos != null){
+		for (var i = 0; i < movie.videos.length; i++){
+			this.insertYoutube(movie.videos[i]);
 		}
 	}
 	var request = this.DATABASE_INSERT_MOVIES;
@@ -784,6 +812,42 @@ DBHelper.prototype.insertReview = function (review) {
 	); 
 };
 
+DBHelper.prototype.insertYoutube = function (youtube) {
+	this.nullHandleCount = 0;
+	var movieId = this.addQuotes(youtube.movieId);
+	var urlVideo = this.addQuotes(youtube.url);
+	var urlImg = this.addQuotes(youtube.img);
+	var name = this.addQuotes(youtube.title);
+	
+	if (this.DATABASE_INSERT_YOUTUBE == null){
+		this.DATABASE_INSERT_YOUTUBE = " INSERT INTO " + this.DATABASE_YOUTUBE_TABLE
+		+ " (" + this.KEY_YOUTUBE_MOVIE_ID
+		+ ", " + this.KEY_YOUTUBE_URL_VIDEO  
+		+ ", " + this.KEY_YOUTUBE_URL_IMG  
+		+ ", " + this.KEY_YOUTUBE_NAME  
+		+ ") VALUES(?,?,?,?); GO;"; 
+	}
+	
+	var request = this.DATABASE_INSERT_YOUTUBE;
+	var dbTmp = this;
+	this.db.transaction( 
+			(function (transaction) { 
+				transaction.executeSql(request
+						, [movieId, urlVideo, urlImg, name]
+						   , function(transaction, result){
+					if (dbTmp.cst.LOG_DEBUG){
+						console.log('DBHelper.insertYoutube : youtube created : '+movieId+", name : "+name+", request : "+request);
+					}
+					return true;
+				}
+				, function(transaction, error) { 
+					console.log('DBHelper.insertYoutube : Error was '); 
+					return true;
+				}); 
+			}).bind(this) 
+	); 
+};
+
 DBHelper.prototype.insertPreference = function (key, value) {
 	this.nullHandleCount = 0;
 	var keyTmp = this.addQuotes(key);
@@ -875,6 +939,33 @@ DBHelper.prototype.removeMovieReviews = function (movie) {
 							}
 							, this.errorHandler.bind(this)
 							); 
+			}).bind(this) 
+	);
+};
+
+DBHelper.prototype.removeMovieYoutube = function (movie) {
+	this.nullHandleCount = 0;
+	
+	if (this.DELETE_MOVIE_YOUTUBE == null){
+		this.DELETE_MOVIE_YOUTUBE = 'DELETE FROM '+this.DATABASE_YOUTUBE_TABLE
+		+' WHERE '+this.KEY_YOUTUBE_MOVIE_ID+' = ?'
+		+';GO;';
+	}
+	
+	var request = this.DELETE_MOVIE_YOUTUBE;
+	var mId = this.addQuotes(movie.id);
+	var dbTmp = this;
+	this.db.transaction( 
+			(function (transaction) { 
+				transaction.executeSql(request
+						, [mId]
+						   ,function(transaction, results){
+					if (dbTmp.cst.LOG_DEBUG){
+						console.log('DBHelper.removeMovieYoutube :  youtube was removed.');
+					}
+				}
+				, this.errorHandler.bind(this)
+				); 
 			}).bind(this) 
 	);
 };
@@ -1477,6 +1568,62 @@ DBHelper.prototype.completeMovieReviews = function (onSucess, movie) {
 	);
 };
 
+DBHelper.prototype.completeMovieYoutube = function (onSucess, movie) {
+	this.nullHandleCount = 0;
+	// Query table1
+	if (this.EXTRACT_YOUTUBES == null){
+		this.EXTRACT_YOUTUBES = 'SELECT * '
+			+' FROM '+this.DATABASE_YOUTUBE_TABLE
+			+' WHERE '+this.KEY_YOUTUBE_MOVIE_ID+' = ?'
+			+';';
+		
+	}
+	var movieId = this.addQuotes(movie.id);
+	var yMovieId = this.KEY_YOUTUBE_MOVIE_ID;
+	var yUrlVideo = this.KEY_YOUTUBE_URL_VIDEO;
+	var yUrlImg = this.KEY_YOUTUBE_URL_IMG;
+	var yName = this.KEY_YOUTUBE_NAME;
+	
+	var dbTmp = this;
+	var request = this.EXTRACT_YOUTUBES;
+	this.db.transaction( 
+			(function (transaction) { 
+				transaction.executeSql(request
+						, [movieId]
+						   , function(transaction, results) { 
+					// Handle the results 
+					try {
+						if (dbTmp.cst.LOG_DEBUG){
+							console.log('DBHelper.completeMovieYoutube : Result of extraction movies : '+results.rows.length+' movies to construct');
+						}
+						var row = null;
+						var youtubeList = [];
+						var youtube = null;
+						for (var j = 0; j < results.rows.length; j++) {
+							row = results.rows.item(j);
+							youtube = new VideoBean();
+							youtube.movieId = dbTmp.removeQuotes(row[yMovieId]);
+							youtube.num = j;
+							youtube.url = dbTmp.removeQuotes(row[yUrlVideo]);
+							youtube.img = dbTmp.removeQuotes(row[yUrlImg]);
+							youtube.title = dbTmp.removeQuotes(row[yName]);
+							// On ajoute le film à la liste
+							youtubeList.push(youtube);
+						}
+						movie.videos = youtubeList;
+						onSucess(movie);
+					}
+					catch (e)
+					{
+						console.log('DBHelper.completeMovieYoutubes : Error during extracting movies : '+e.message);
+					} 
+					
+				} 
+				, this.errorHandler.bind(this)); 
+			}).bind(this) 
+	);
+};
+
 DBHelper.prototype.extractShowTimeFromTheater = function (theater, onSucess) {
 	this.nullHandleCount = 0;
 	// Query table1
@@ -1842,6 +1989,10 @@ DBHelper.prototype.callBackVersions = function(version) {
 				this.createTableDataBase(this.DATABASE_CREATE_VERSION_TABLE, this.DATABASE_VERSION_TABLE);
 				this.insertVersion(this.appVersion);
 			}
+			if (dbVersion < 27){
+				this.createTableDataBase(this.DATABASE_CREATE_YOUTUBE_TABLE, this.DATABASE_YOUTUBE_TABLE);
+				this.insertVersion(this.appVersion);
+			}
 		}else{
 			appVersion = null;
 			//create table theaters
@@ -1854,6 +2005,7 @@ DBHelper.prototype.callBackVersions = function(version) {
 			this.createTableDataBase(this.DATABASE_CREATE_REVIEWS_TABLE, this.DATABASE_REVIEW_TABLE);
 			this.createTableDataBase(this.DATABASE_CREATE_VERSION_TABLE, this.DATABASE_VERSION_TABLE);
 			this.createTableDataBase(this.DATABASE_CREATE_PREFERENCES_TABLE, this.DATABASE_PREFERENCES_TABLE);
+			this.createTableDataBase(this.DATABASE_CREATE_YOUTUBE_TABLE, this.DATABASE_YOUTUBE_TABLE);
 			
 			this.insertVersion(this.appVersion);
 			
