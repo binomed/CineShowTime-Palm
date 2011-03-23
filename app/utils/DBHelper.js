@@ -1,10 +1,11 @@
-function DBHelper(){
+function DBHelper(appVersion){
 
 	console.log('DBHelper.DBHelper() : Initialisation of DBHelper');
 	
 	this.nullHandleCount = 0;
 	this.db = null;
 	this.cst = new CineShowTimeCst();
+	this.appVersion = appVersion;
 	
 	/* DECLARATION DES CHAMPS */
 	this.KEY_THEATER_NAME = "theater_name"; 
@@ -91,7 +92,7 @@ function DBHelper(){
 	this.DATABASE_PREFERENCES_TABLE = "preferences";
 	
 	this.DATABASE_VERSION_PALM = 1;
-	this.DATABASE_VERSION = 25;
+	this.DATABASE_VERSION = 26;
 	
 	
 	/* CREATE SCRIPTS*/
@@ -267,7 +268,7 @@ DBHelper.prototype.initDataBase = function (onSucess) {
 		+ "); GO;";
 		this.DATABASE_CREATE_VERSION_TABLE = " create table if not exists " + this.DATABASE_VERSION_TABLE
 		+ " (" + this.KEY_VERSION_DB + " integer primary key"
-		+ ", " + this.KEY_VERSION_APP + " integer " 
+		+ ", " + this.KEY_VERSION_APP + " text " 
 		+ "); GO;";
 		this.DATABASE_CREATE_PREFERENCES_TABLE = " create table if not exists " + this.DATABASE_PREFERENCES_TABLE
 		+ " (" + this.KEY_PREFERENCE_KEY + " text primary key"
@@ -709,7 +710,7 @@ DBHelper.prototype.updateSearchRequest = function (requestBean) {
 DBHelper.prototype.insertVersion = function (appVersion) {
 	this.nullHandleCount = 0;
 	var dbVersion = parseInt(this.DATABASE_VERSION);
-	var appVersionInsert = 0;
+	var appVersionInsert = this.appVersion;
 	if (appVersion != null){
 		appVersionInsert = appVersion;
 	}
@@ -1707,12 +1708,12 @@ DBHelper.prototype.extractVersionDataBase = function (onSucess) {
 		            			}
 	            				onSucess(version);
 	            			}catch (e) {
-								console.log('DBHelper.extractVersionDataBase : Error was '+error.message+' (Code '+error.code+')'+' | script : '+scriptCreation); 
+								console.log('DBHelper.extractVersionDataBase : Error was '+error.message+' (Code '+error.code+')'+' | script : '+request); 
 							}
 	            			return true;
 	            		}
 			            , function(transaction, error) { 
-		                    console.log('DBHelper.extractVersionDataBase : Error was '+error.message+' (Code '+error.code+')'+' | script : '+scriptCreation); 
+		                    console.log('DBHelper.extractVersionDataBase : Error was '+error.message+' (Code '+error.code+')'+' | script : '+request); 
 		                    return true;
 		                }); 
 	        }).bind(this) 
@@ -1753,12 +1754,12 @@ DBHelper.prototype.extractPreferences = function (onSucess) {
 								}
 								onSucess(preferenceList);
 							}catch (e) {
-								console.log('DBHelper.extractPreferences : Error was '+error.message+' (Code '+error.code+')'+' | script : '+scriptCreation); 
+								console.log('DBHelper.extractPreferences : Error was '+error.message+' (Code '+error.code+')'+' | script : '+request); 
 							}
 							return true;
 						}
 						, function(transaction, error) { 
-							console.log('DBHelper.extractPreferences : Error was '+error.message+' (Code '+error.code+')'+' | script : '+scriptCreation); 
+							console.log('DBHelper.extractPreferences : Error was '+error.message+' (Code '+error.code+')'+' | script : '+request); 
 							return true;
 						}); 
 			}).bind(this) 
@@ -1794,12 +1795,12 @@ DBHelper.prototype.extractPreferenceValue = function (onSucess, key) {
 								}
 								onSucess(valueTmp);
 							}catch (e) {
-								console.log('DBHelper.extractPreferenceValue : Error was '+error.message+' (Code '+error.code+')'+' | script : '+scriptCreation); 
+								console.log('DBHelper.extractPreferenceValue : Error was '+error.message+' (Code '+error.code+')'+' | script : '+request); 
 							}
 							return true;
 						}
 						, function(transaction, error) { 
-							console.log('DBHelper.extractPreferenceValue : Error was '+error.message+' (Code '+error.code+')'+' | script : '+scriptCreation); 
+							console.log('DBHelper.extractPreferenceValue : Error was '+error.message+' (Code '+error.code+')'+' | script : '+request); 
 							return true;
 						}); 
 			}).bind(this) 
@@ -1815,26 +1816,34 @@ DBHelper.prototype.callBackVersions = function(version) {
 		console.log('DBHelper.callBackVersions : '+version);
 	}
 	try{
+		var appVersion = this.appVersion;
 		if (version != null){
 			var dbVersion = version['db'];
+			appVersion = version['app'];
 			if (dbVersion < 22){
-				this.insertVersion(null);
+				this.insertVersion(this.appVersion);
 			}
 			if (dbVersion < 23){
 				this.createTableDataBase(this.DATABASE_CREATE_PREFERENCES_TABLE, this.DATABASE_PREFERENCES_TABLE);
-				this.insertVersion(null);
+				this.insertVersion(this.appVersion);
 			}
 			if (dbVersion < 24){
 				this.dropTableDataBase(this.DROP_MOVIE_TABLE, this.DATABASE_MOVIE_TABLE);
 				this.createTableDataBase(this.DATABASE_CREATE_MOVIE_TABLE, this.DATABASE_MOVIE_TABLE);
-				this.insertVersion(null);
+				this.insertVersion(this.appVersion);
 			}
 			if (dbVersion < 25){
 				this.dropTableDataBase(this.DROP_REQUEST_TABLE, this.DATABASE_REQUEST_TABLE);
 				this.createTableDataBase(this.DATABASE_CREATE_REQUEST_TABLE, this.DATABASE_REQUEST_TABLE);
-				this.insertVersion(null);
+				this.insertVersion(this.appVersion);
+			}
+			if (dbVersion < 26){
+				this.dropTableDataBase(this.DROP_VERSION_TABLE, this.DATABASE_VERSION_TABLE);
+				this.createTableDataBase(this.DATABASE_CREATE_VERSION_TABLE, this.DATABASE_VERSION_TABLE);
+				this.insertVersion(this.appVersion);
 			}
 		}else{
+			appVersion = null;
 			//create table theaters
 			this.createTableDataBase(this.DATABASE_CREATE_THEATER_TABLE, this.DATABASE_THEATERS_TABLE);
 			this.createTableDataBase(this.DATABASE_CREATE_MOVIE_TABLE, this.DATABASE_MOVIE_TABLE);
@@ -1846,12 +1855,12 @@ DBHelper.prototype.callBackVersions = function(version) {
 			this.createTableDataBase(this.DATABASE_CREATE_VERSION_TABLE, this.DATABASE_VERSION_TABLE);
 			this.createTableDataBase(this.DATABASE_CREATE_PREFERENCES_TABLE, this.DATABASE_PREFERENCES_TABLE);
 			
-			this.insertVersion(null);
+			this.insertVersion(this.appVersion);
 			
 		}
-		this.callBackMethodInit();
+		this.callBackMethodInit(appVersion);
 	}catch (e) {
-		console.log('DBHelper.callBackVersions : Error was '+error.message+' (Code '+error.code+')'+' | script : '+scriptCreation);
+		console.log('DBHelper.callBackVersions : Error was '+error.message+' (Code '+error.code+')');
 	}
 };
 

@@ -687,6 +687,7 @@ FilmAssistant.prototype.addEvent = function() {
 FilmAssistant.prototype.parsingXml = function(xmlResult) {
 	console.log('FilmAssistant.parsingXml : movieTime : '+this.movie.movieTime);
 	
+	
 	var movie = new MovieBean();
 	
 	
@@ -705,11 +706,14 @@ FilmAssistant.prototype.parsingXml = function(xmlResult) {
 	movie.urlImg = tagMovie.getAttribute("URL_IMG");
 	movie.urlWikipedia = tagMovie.getAttribute("URL_WIKIPEDIA");
 	movie.urlImdb = tagMovie.getAttribute("URL_IMDB");
-	movie.imdbDesrciption = tagDesc.getAttribute("IMDB_DESC");
 	
-	if (tagDesc.firstChild != null){
-		movie.description = tagDesc.firstChild.nodeValue;
+  if	(tagDesc != null) {
+    movie.imdbDesrciption = tagDesc.getAttribute("IMDB_DESC");
+  	if (tagDesc.firstChild != null){
+  		movie.description = tagDesc.firstChild.nodeValue;
+  	}
 	}
+	
 	var tagReview = null;
 	var reviewList = [];
 	var review = null;
@@ -770,6 +774,7 @@ FilmAssistant.prototype.gotResults = function(transport) {
 
 	// Convert the string to an XML object
 	var xmlResult = (new DOMParser()).parseFromString(xmlstring, "text/xml");
+	// console.log('FilmAssistant.gotResults : XML : '+ xmlstring);
 	
 	this.loadResults(xmlResult);
 }

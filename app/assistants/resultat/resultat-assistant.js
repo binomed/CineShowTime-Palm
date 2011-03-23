@@ -3,12 +3,13 @@ function ResultatAssistant(argFromPusher) {
 	this.dbHelper = argFromPusher.dbHelper;
 	this.theaterFavList = argFromPusher.theaterFavList;
 	this.locale = argFromPusher.locale;
-    this.timeZone = argFromPusher.timeZone;
-    this.cst = argFromPusher.cst;
-    this.preferences = argFromPusher.preferences;
-    this.forceRequest = argFromPusher.forceRequest;
-    
-    this.theaterList = null;
+  this.timeZone = argFromPusher.timeZone;
+  this.cst = argFromPusher.cst;
+  this.preferences = argFromPusher.preferences;
+  this.forceRequest = argFromPusher.forceRequest;
+  
+  this.theaterList = null;
+	this.theaterListResults = null;
 	this.movieList = null;
 	this.movieMapList = null;
 	this.bufferTheaterExtract = 0;
@@ -27,6 +28,9 @@ function ResultatAssistant(argFromPusher) {
 	this.resutAssistant = this;
 	this.listenTapTheaterHandler;
 	
+	this.nbTheaterResults = 0;
+	this.nbTheaterResultsTreat = 0;
+	this.parsing = 0;
 	
 	this.mainList = [];
 	this.subList = [];
@@ -248,9 +252,9 @@ ResultatAssistant.prototype.gotResults = function(transport) {
 	}catch (e) {
 		console.log("Resultat.gotResults : error : "+e.message);
 	}finally{
-		this.spinnerModel.spinning = false;
+		/*this.spinnerModel.spinning = false;
 		this.controller.modelChanged(this.spinnerModel);
-		$('myScrim').hide();
+		$('myScrim').hide();*/
 	}
 	
 };
@@ -268,9 +272,9 @@ ResultatAssistant.prototype.gotResultsMovie = function(transport) {
 	}catch (e) {
 		console.log("Resultat.gotResultsMovie : error : "+e.message);
 	}finally{
-		this.spinnerModel.spinning = false;
+		/*this.spinnerModel.spinning = false;
 		this.controller.modelChanged(this.spinnerModel);
-		$('myScrim').hide();
+		$('myScrim').hide();*/
 	}
 	
 };
@@ -308,20 +312,102 @@ ResultatAssistant.prototype.findTheater = function(theaterList, theaterId) {
 	return movie;
 };
 
+ResultatAssistant.prototype.completeLocalisationBean = function(theaterList){
+	var latitude = this.requestBean.latitude;
+	var longitude = this.requestBean.longitude;
+	
+	if ((latitude != null) && (longitude != null)){
+		url += '&long='+longitude+'&lat='+latitude;
+	}
+	
+	for(var i = 0; i < theaterList.length; i++) {
+		console.log("ResultatAssistant.completeLocalisationBean : theater query : " + theaterList[i].place.searchQuery);
+	}
+	
+	return theaterList;
+}
+
+ResultatAssistant.prototype.fillLocation = function(numTheater, transport) {
+	console.log("ResultatAssistant.fillLocation : theater : " + transport.responseText);
+
+	try {
+		var jsonresult = transport.responseText.evalJSON(true);
+		
+		var localisation = this.theaterListResults[numTheater].place;
+		if (jsonresult.Status.code == 200) {
+			var placeMarkJson = jsonresult.Placemark[1];
+			if (placeMarkJson != null){
+				var addressDetailsJson = placeMarkJson.AddressDetails;
+				if (addressDetailsJson != null){
+					var countryJson = addressDetailsJson.Country;
+					if (countryJson != null){
+						localisation.countryName = countryJson.CountryName; //String
+						localisation.countryNameCode = countryJson.CountryNameCode; //String
+						var adminAreaJson = countryJson.AdministrativeArea;
+						if (adminAreaJson != null){
+							var subAdminAreaJson = adminAreaJson.SubAdministrativeArea;
+							if (subAdminAreaJson != null){
+								var localityJson = subAdminAreaJson.Locality;
+								if (localityJson != null){
+									localisation.cityName = localityJson.LocalityName;//String
+									var postalCodeJson = localityJson.PostalCode;
+									if( postalCodeJson != null){
+										localisation.postalCityNumber = postalCodeJson.PostalCodeNumber; //String*/
+									}
+								}
+							}
+						}
+					}
+				}
+				var directionJson = jsonresult.Directions;
+				if (directionJson != null){
+					var distanceJson = directionJson.Distance;
+					var durationJson = directionJson.Duration;
+					if (distanceJson != null){
+						localisation.distance = distanceJson.meters; // Float On divise par 1000 pour avoir en km
+					}
+					if (durationJson != null){
+						localisation.distanceTime = parseInt(durationJson.seconds+"000"); // Long
+					}
+				}
+				var pointJson = placeMarkJson.Point;
+				if (pointJson != null){
+					localisation.latitude = pointJson.coordinates[0]; // Double
+					localisation.longitude = pointJson.coordinates[1]; // Double
+					
+				}
+				console.log("ResultatAssistant.fillLocation : theaterListResults[" + numTheater + "].place.distance : " + localisation.distance);
+			}
+		}
+		
+		// On met à jour le place
+    this.theaterListResults[numTheater].place = localisation;
+    
+		this.nbTheaterResultsTreat++;
+		if (this.nbTheaterResultsTreat == this.nbTheaterResults){
+			var fct = this.loadResultsAfterFill.bind(this);
+			fct();
+		}
+	} catch (e) {
+		console.log('ResultatAssistant.fillLocation : error lors de la récupération des distance : '+e.message);
+	}
+}
+
 ResultatAssistant.prototype.loadResults = function(xmlResult) {
 	
-	
 	// parsing du résultat xml
-	var parsing = this.parsingXml(xmlResult);
-	
+	this.parsing = this.parsingXml(xmlResult);
 	// On met à jour en base le requestBean pour avoir la bonne valeur de nearResp
 	this.dbHelper.updateSearchRequest(this.requestBean);
-		
+	var theaterList = this.parsing['theaters'];
+	this.theaterListResults = theaterList;
+	var querymaps;
+	var place = null;
+	this.nbTheaterResults = this.theaterListResults.length;
 	
-	var theaterList = parsing['theaters'];
-	var movieList = parsing['movies'];
 	// Gestion des messages d'erreurs.
 	var errorString = null;
+	
 	if (theaterList.length == 1 ){
 		var thTmp = theaterList[0];
 		try{
@@ -354,7 +440,118 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
 	}else if (theaterList.length == 0){
 		errorString = "msgNoResultRetryLater";
 	}else{
-		console.log('ResultatAssistant.loadResults : else  :'+theaterList.length + ' '+movieList.length);
+		console.log('ResultatAssistant.loadResults : else  :'+theaterList.length);
+	}
+	
+	// On regarde donc si aucune erreur ne s'est produite, on affiche un message
+	if (errorString == null){
+	
+    try {
+          
+    	for(var i = 0; i < this.theaterListResults.length; i++) {
+        if(this.theaterListResults[i].place != null && this.theaterListResults[i].place != "null") {
+      		place = this.theaterListResults[i].place;
+      		if (place != null && place.searchQuery != null && place.searchQuery != ""){
+      			querymaps = {
+      					from:this.requestBean.cityName.replace(" ", "+"),
+      					to:decode(place.searchQuery).replace(" ", "+"),
+      					key:this.cst.GOOGLE_MAPS_KEY
+      			};
+      			
+      			var request = new Ajax.Request($L(this.cst.URL_DIST).interpolate(querymaps), {
+      				method: 'get',
+      				onSuccess: this.fillLocation.bind(this, i),
+      				onFailure: this.failure.bind(this)				
+      			});
+      		}else{
+      			this.nbTheaterResults--;
+      		}
+          console.log("ResultatAssistant.loadResults : requete maps : " + $L(this.cst.URL_DIST).interpolate(querymaps));  
+    		}
+    	}
+      
+    } catch (e) {
+      console.log("ResultatAssistant.loadResults : error : " + e.message);
+    }
+  }else{
+    console.log('ResultatAssistant.loadResults : errorString : ' + errorString);
+		this.wordList = [];
+		this.wordList.push({
+			id:0,
+			data:$L(errorString),
+			distance:" ",
+			city:" ",
+			favImg:"images/null.png",
+			idFavImg:" "
+		});
+		
+		// Rafraichissement de la liste
+		this.listModel.items = this.wordList;
+		this.controller.modelChanged(this.listModel, this);
+		
+		// Mise à jour de la liste des séances pour le cinéma
+		this.controller.setupWidget('listShowTimes'+0, this.listSTAttributes, {listId:i,items:[]});
+		this.controller.instantiateChildWidgets(this.controller.get('listTheaterAndMovies'));
+		
+		// Mise à jour du widget "Drawer" pour le cinéma
+		this.controller.setupWidget('drawerTheater'+0, {property:'myOpenProperty'}, {myOpenProperty: false});		
+		this.controller.instantiateChildWidgets(this.controller.get('listTheaterAndMovies'));
+		
+		// Mise en place du listener lancant la recherhce
+		//this.controller.listen('rowClick'+0, Mojo.Event.tap, this.reLaunchRequest.bindAsEventListener(this));
+		
+		this.spinnerModel.spinning = false;
+		this.controller.modelChanged(this.spinnerModel);
+		$('myScrim').hide();
+		
+		// on va écrire en base que la requete s'est passée au temps 0 => on pourra relancer la requete
+		this.requestBean.time = 0;
+		this.dbHelper.insertSearchRequest(this.requestBean);
+	}
+}
+
+ResultatAssistant.prototype.loadResultsAfterFill = function() {
+		
+	//var theaterList = this.parsing['theaters'];
+	var theaterList = this.theaterListResults;
+	var movieList = this.parsing['movies'];
+	
+	// Gestion des messages d'erreurs.
+	var errorString = null;
+	
+	if (theaterList.length == 1 ){
+		var thTmp = theaterList[0];
+		try{
+			switch (parseInt(thTmp.id)) {
+			case this.cst.ERROR_WRONG_PLACE:
+				errorString = "msgNoPlaceMatch";
+				break;
+			case this.cst.ERROR_WRONG_DATE:
+				errorString = "msgNoDateMatch";
+				break;
+			case this.cst.ERROR_NO_DATA:
+				if (!this.theaterView){
+					errorString = "txtMovieFindValueNotFound";
+				}else{
+					errorString = "msgNoResultRetryLater";
+				}
+				break;
+			case this.cst.ERROR_CUSTOM_MESSAGE:
+				errorString = decode(thTmp.theaterName);
+				break;
+			default:
+				break;
+			}         
+		}catch (e) {			
+			// on catch une erreur car l'id peut être un id (dans ce cas une erreur)
+		}
+		
+	}else if (theaterList.length == 0 && !this.theaterView){
+		errorString = "msgNoDateMatch";
+	}else if (theaterList.length == 0){
+		errorString = "msgNoResultRetryLater";
+	}else{
+		console.log('ResultatAssistant.loadResultsAfterFill : else  :'+theaterList.length + ' '+movieList.length);
 	}
 	
 	// On regarde donc si une erreur c'est produite, on affiche un message
@@ -408,7 +605,7 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
 			}
 		}
 		
-		console.log('ResultatAssistant.loadResults : Après parsing :'+theaterList.length + ' '+movieList.length);
+		console.log('ResultatAssistant.loadResultsAfterFill : Après parsing :'+theaterList.length + ' '+movieList.length);
 		theaterList = this.theaterList;
 		movieList = this.movieList
 		
@@ -416,7 +613,7 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
 			this.showResultsWithPreferences(theaterList, movieList);
 		}
 		catch(e){
-			console.log('ResultatAssistant.loadResults : error during showing results : '+e.message);
+			console.log('ResultatAssistant.loadResultsAfterFill : error during showing results : '+e.message);
 		}
 	
 		try{
@@ -429,9 +626,13 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
 			}
 		}
 		catch(e){
-			console.log('ResultatAssistant.loadResults : error during writing into data bae : '+e.message);
-		}
-	}
+			console.log('ResultatAssistant.loadResultsAfterFill : error during writing into data bae : '+e.message);
+		}   
+		
+		this.spinnerModel.spinning = false;
+  	this.controller.modelChanged(this.spinnerModel);
+  	$('myScrim').hide();
+	}  
 };
 
 
@@ -640,9 +841,6 @@ ResultatAssistant.prototype.showResultsGen = function() {
 		fctOpenDrawer();
 	}
 	
-	this.spinnerModel.spinning = false;
-	this.controller.modelChanged(this.spinnerModel);
-	$('myScrim').hide();
 };
 
 // Show results on screen
@@ -894,8 +1092,6 @@ ResultatAssistant.prototype.reLaunchRequest = function(){
 
 
 
-
-
 // Xml Parsing and write into data base of results
 ResultatAssistant.prototype.parsingXml = function(xmlResult) {
 	// Parcours de la liste des cinémas
@@ -913,76 +1109,81 @@ ResultatAssistant.prototype.parsingXml = function(xmlResult) {
 	var theaterList = [];
 	var movieList = [];
 	
-	this.moreResult = xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("MORE_RESULTS") == 'true';
-	
-	// On récupère le mode d'affichage et on met à jour le requestBean associé
-	this.theaterView = xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("NEAR_RESP") == 'true';
-	this.requestBean.nearResp = this.theaterView;
-	console.log("ResultatsAssistant.parsingXml : xmlResults : "+xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("NEAR_RESP")+", theaterView : "+this.theaterView)
-	
-	
-	// Liste des films
-	for (var k = 0; k < xmlResult.getElementsByTagName("MOVIE_LIST")[0].getElementsByTagName("MOVIE").length; k++) {
-		tagMovie = xmlResult.getElementsByTagName("MOVIE_LIST")[0].getElementsByTagName("MOVIE")[k];
-		
-		movie = new MovieBean();
-		movie.id = tagMovie.getAttribute("ID");
-		movie.movieName = tagMovie.getAttribute("MOVIE_NAME");
-		movie.englishMovieName = tagMovie.getAttribute("ENGLISH_MOVIE_NAME");
-		movie.movieTime = tagMovie.getAttribute("TIME");
-		
-		movieList.push(movie);
-	}
-	
-	// Liste des cinémas avec les séances
-	for (var i = 0; i < xmlResult.getElementsByTagName("THEATER").length; i++) {
-		
-		tagTheater = xmlResult.getElementsByTagName("THEATER")[i];
-		tagLocalisation = tagTheater.getElementsByTagName("LOCALISATION")[0];
-		
-		
-		theater = new TheaterBean();
-		theater.id = tagTheater.getAttribute("ID");
-		theater.theaterName = tagTheater.getAttribute("THEATER_NAME");
-		theater.phoneNumber = tagTheater.getAttribute("PHONE_NUMBER");
-		theater.movieMap = [];
-		
-		if (tagLocalisation != null){
-			localisation = new LocalisationBean();
-			localisation.cityName = tagLocalisation.getAttribute("CITY_NAME");//String
-			localisation.countryName = tagLocalisation.getAttribute("COUNTRY_NAME"); //String
-			localisation.countryNameCode = tagLocalisation.getAttribute("COUNTRY_CODE"); //String
-			localisation.distance = tagLocalisation.getAttribute("DISTANCE"); // Float
-			localisation.distanceTime = tagLocalisation.getAttribute("DISTANCE_TIME"); // Long
-			localisation.latitude = tagLocalisation.getAttribute("LATITUDE"); // Double
-			localisation.longitude = tagLocalisation.getAttribute("LONGITUDE"); // Double
-			localisation.postalCityNumber = tagLocalisation.getAttribute("POSTAL_CODE"); //String
-			localisation.searchQuery = tagLocalisation.getAttribute("SEARCH_QUERY"); //String
-			theater.place = localisation;
-		}
-		
-		theaterList.push(theater);
-		
-		for (var j = 0; j < tagTheater.getElementsByTagName("MOVIE").length; j++) {
-			
-			tagMovie = tagTheater.getElementsByTagName("MOVIE")[j];
-			movie = this.findMovie(movieList, tagMovie.getAttribute("ID"));
-			if (movie != null){
-				projectionList = [];
-				for(var k = 0; k < tagMovie.getElementsByTagName("PROJECTION").length; k++) {
-					tagProjection = tagTheater.getElementsByTagName("MOVIE")[j].getElementsByTagName("PROJECTION")[k];
-					projection = new ProjectionBean();
-					projection.showtime = tagProjection.getAttribute("TIME");
-					projection.lang = tagProjection.getAttribute("LANG");
-					projection.reservationLink = tagProjection.getAttribute("RESERVATION_URL");
-					
-					projectionList.push(projection);
-					
-				}
-				theater.movieMap.push({id:movie.id, data:projectionList});
-			}
-		}
-	}
+	try {
+  	this.moreResult = xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("MORE_RESULTS") == 'true';
+  	
+  	// On récupère le mode d'affichage et on met à jour le requestBean associé
+  	this.theaterView = xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("NEAR_RESP") == 'true';
+  	this.requestBean.nearResp = this.theaterView;
+  	console.log("ResultatsAssistant.parsingXml : xmlResults : "+xmlResult.getElementsByTagName("NEAR_RESP")[0].getAttribute("NEAR_RESP")+", theaterView : "+this.theaterView)
+  	
+  	
+  	// Liste des films
+  	for (var k = 0; k < xmlResult.getElementsByTagName("MOVIE_LIST")[0].getElementsByTagName("MOVIE").length; k++) {
+  		tagMovie = xmlResult.getElementsByTagName("MOVIE_LIST")[0].getElementsByTagName("MOVIE")[k];
+  		
+  		movie = new MovieBean();
+  		movie.id = tagMovie.getAttribute("ID");
+  		movie.movieName = tagMovie.getAttribute("MOVIE_NAME");
+  		movie.englishMovieName = tagMovie.getAttribute("ENGLISH_MOVIE_NAME");
+  		movie.movieTime = tagMovie.getAttribute("TIME");
+  		
+  		movieList.push(movie);
+  	}
+  	
+  	// Liste des cinémas avec les séances
+  	for (var i = 0; i < xmlResult.getElementsByTagName("THEATER").length; i++) {
+  		
+  		tagTheater = xmlResult.getElementsByTagName("THEATER")[i];
+  		tagLocalisation = tagTheater.getElementsByTagName("LOCALISATION")[0];
+  		
+  		
+  		theater = new TheaterBean();
+  		theater.id = tagTheater.getAttribute("ID");
+  		theater.theaterName = tagTheater.getAttribute("THEATER_NAME");
+  		theater.phoneNumber = tagTheater.getAttribute("PHONE_NUMBER");
+  		theater.movieMap = [];
+  		
+  		if (tagLocalisation != null){
+  			localisation = new LocalisationBean();
+  			/*localisation.cityName = tagLocalisation.getAttribute("CITY_NAME");//String
+  			localisation.countryName = tagLocalisation.getAttribute("COUNTRY_NAME"); //String
+  			localisation.countryNameCode = tagLocalisation.getAttribute("COUNTRY_CODE"); //String
+  			localisation.distance = tagLocalisation.getAttribute("DISTANCE"); // Float
+  			localisation.distanceTime = tagLocalisation.getAttribute("DISTANCE_TIME"); // Long
+  			localisation.latitude = tagLocalisation.getAttribute("LATITUDE"); // Double
+  			localisation.longitude = tagLocalisation.getAttribute("LONGITUDE"); // Double
+  			localisation.postalCityNumber = tagLocalisation.getAttribute("POSTAL_CODE"); //String*/
+  			localisation.searchQuery = tagLocalisation.getAttribute("SEARCH_QUERY"); //String
+  			theater.place = localisation;
+  		}
+  		
+  		theaterList.push(theater);
+  		
+  		for (var j = 0; j < tagTheater.getElementsByTagName("MOVIE").length; j++) {
+  			
+  			tagMovie = tagTheater.getElementsByTagName("MOVIE")[j];
+  			movie = this.findMovie(movieList, tagMovie.getAttribute("ID"));
+  			if (movie != null){
+  				projectionList = [];
+  				for(var k = 0; k < tagMovie.getElementsByTagName("PROJECTION").length; k++) {
+  					tagProjection = tagTheater.getElementsByTagName("MOVIE")[j].getElementsByTagName("PROJECTION")[k];
+  					projection = new ProjectionBean();
+  					projection.showtime = tagProjection.getAttribute("TIME");
+  					projection.lang = tagProjection.getAttribute("LANG");
+  					projection.reservationLink = tagProjection.getAttribute("RESERVATION_URL");
+  					
+  					projectionList.push(projection);
+  					
+  				}
+  				theater.movieMap.push({id:movie.id, data:projectionList});
+  			}
+  		}
+	   }
+	  } catch(e) {
+      console.log('ResultatAssistant.parsingXml : error : '+ e.message);
+    }
+	  
 	
 	return {theaters:theaterList, movies:movieList};
 	
@@ -1010,6 +1211,10 @@ ResultatAssistant.prototype.toggleFav = function(event) {
 		this.theaterFavList = listTmp;
 	}else{
 		imgFav = {img:'btn_star_big_on.png'};
+		if (theater.place == null || theater.place.cityName == null || theater.place.cityName == ""){
+			theater.place = new LocalisationBean();
+			theater.place.cityName = this.requestBean.cityName;
+		}
 		this.dbHelper.insertFavTheater(theater);
 		this.theaterFavList.push(theater);
 	}
@@ -1370,12 +1575,16 @@ ResultatAssistant.prototype.writeIntoDataBase = function() {
 }
 
 ResultatAssistant.prototype.callBackTheaterList = function(theaterList) { 
-     // Handle the results
-     try {
- 		this.theaterList = theaterList;
-    	 if (theaterList.length > 0){
-			this.dbHelper.extractMovie(this.callBackMovieList.bind(this));
-		}
+   // Handle the results
+  try {
+    this.theaterList = theaterList;
+  	if (theaterList.length > 0){
+  	 this.dbHelper.extractMovie(this.callBackMovieList.bind(this));
+    }
+    
+    this.spinnerModel.spinning = false;
+		this.controller.modelChanged(this.spinnerModel);
+		$('myScrim').hide();
  	}
  	catch (e)
  	{

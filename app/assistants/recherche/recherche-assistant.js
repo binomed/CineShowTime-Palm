@@ -22,9 +22,7 @@ function RechercheAssistant(argFromPusher) {
 }
 
 RechercheAssistant.prototype.setup = function() {
-        $$('body')[0].addClassName('palm-dark');
-        $$('body')[0].addClassName('black');    
-        $$('body')[0].removeClassName('palm-default');
+
 		
 		this.useGps = false;
 

@@ -1,9 +1,13 @@
 /* Put Application specific CSS here. */
 
 .black , .palm-dark{ height:auto; }
-body.my-dark-backdrop { background: url(../images/AndroidShowTime_fond1.jpg) center top; }
 
-.label_field { font-weight:bold; color:#ff0000;}
+body.my-dark-backdrop { background: url(../images/AndroidShowTime_fond1.jpg) center top; }
+body.my-light-backdrop { background: url(../images/cineshowtime_fond_light.jpg) center top; }
+
+.palm-dark .label_field { font-weight:bold; color:#ff0000;}
+.palm-light .label_field { font-weight:bold; color:#990000;}     
+
 .header_title {background:url(../images/title.png) center top; height:30px; background-color:#9f0000;}
 
 .cine_button {
@@ -37,9 +41,21 @@ body.my-dark-backdrop { background: url(../images/AndroidShowTime_fond1.jpg) cen
 
 .about a {color:#5A5A5A;}
 
+/* Style : What's new */
+
+#whats-new_title    { margin-bottom:10px; margin-top:7px; color:black; }
+.whatsnew_header    { border-bottom:1px solid #333333; margin-bottom:5px; }
+
+.versions           { color:#333333; font-size:16px; margin:0px;  margin-left:-25px; list-style-type:none; }
+.versions li        { margin-bottom:5px; margin-top:5px; }
+.versions .current  { font-weight:bold; }
+.versions ul        { list-style-type:disc; }
+.versions ul li     { font-size:14px; margin:0px; }
+
 /* Style : Page d'accueil */
 .accueil_main {  height:500px; }
-.logo { background:url('../images/logo.png') center center;	width:100%;	height:80px;  }
+body.my-dark-backdrop .logo { background:url('../images/logo.png') center center;	width:100%;	height:80px;  }
+body.my-light-backdrop .logo { background:url('../images/logo_light.png') center center;	width:100%;	height:80px;  }
 
 .splash_screen {
 	position:absolute;
@@ -66,7 +82,8 @@ body.my-dark-backdrop { background: url(../images/AndroidShowTime_fond1.jpg) cen
 
 /* Style : Page Recherche */
 
-.label_field_recherche { color:#ff0000; }
+.palm-dark .label_field_recherche { color:#ff0000; }
+.palm-light .label_field_recherche { color:#990000; }
 
 .rech_ligne { margin-left:5px; margin-top:5px;}
 .rech_ligne_jour { margin-right:5px; margin-top:20px; }
@@ -89,15 +106,23 @@ body.my-dark-backdrop { background: url(../images/AndroidShowTime_fond1.jpg) cen
 .img_fav_theater { margin-left:5px; font-size:0.8em; float:right }
 .title_showtime { margin-left:15px; font-size:0.8em; padding-bottom:3px; }
 
-.fav_icon {	margin-top:-15px;}
-.distance_theater {	color:#696969;}
-.distance_theater_sub {	color:#aaaaaa;}
-.horaire_showtime {	color:#A5A5A5;}
-.horaire_showtime a { color:#A5A5A5;}
-.past_showtime { font-style:italic; color:#3C3C3C; }
-.next_showtime { font-weight:bold; color:#D2D2D2; }
-.next_showtime a { font-weight:bold; color:#D2D2D2; }
-.lang_showtime { color:#ffffff; }
+.palm-dark .distance_theater {	color:#696969;}
+.palm-dark .distance_theater_sub {	color:#aaaaaa;}
+.palm-dark .horaire_showtime {	color:#A5A5A5;}
+.palm-dark .horaire_showtime a { color:#A5A5A5;}
+.palm-dark .past_showtime { font-style:italic; color:#3C3C3C; }
+.palm-dark .next_showtime { font-weight:bold; color:#D2D2D2; }
+.palm-dark .next_showtime a { font-weight:bold; color:#D2D2D2; }
+.palm-dark .lang_showtime { color:#ffffff; }
+
+.palm-light .distance_theater {	color:#3C3C3C;}
+.palm-light .distance_theater_sub {	color:#3C3C3C;}
+.palm-light .horaire_showtime {	color:#3C3C3C;}
+.palm-light .horaire_showtime a { color:#3C3C3C;}
+.palm-light .past_showtime { font-style:italic; color:#D2D2D2; }
+.palm-light .next_showtime { font-weight:bold; color:#101010; }
+.palm-light .next_showtime a { font-weight:bold; color:#101010; }
+.palm-light .lang_showtime { color:#000000; }
 
 .theater_fold { width:20px; height:20px; background:url(../images/theater_fold.png); position:absolute; }
 .unfolded { background-position-y:-20px; margin-top:3px; }
@@ -116,7 +141,7 @@ body.my-dark-backdrop { background: url(../images/AndroidShowTime_fond1.jpg) cen
 
 .movie_img { margin-right:5px; margin-top:5px; }
 .movie {	font-size:0.8em; line-height:19px;}
-.film_resume { font-size:0.8em; line-height:19px; margin-bottom:10px;}
+.film_resume { font-size:0.8em; line-height:19px; margin-bottom:20px;}
 
 .info_theater { text-align:center; font-size:0.8em; line-height:16px; }
 .film_title_showtime { float:left; font-size:0.8em; line-height:19px; padding-top:5px; margin-left:5px; }
@@ -151,14 +176,17 @@ body.my-dark-backdrop { background: url(../images/AndroidShowTime_fond1.jpg) cen
 
 .tab_container td {padding-left:5px; padding-right:5px;}
 
-.next_showtime_film { font-weight:bold; color:white; }
-.future_showtime_film { font-weight:normal; color:lightgrey; }
+.palm-dark .next_showtime_film { font-weight:bold; color:white; }
+.palm-dark .future_showtime_film { font-weight:normal; color:lightgrey; }
+
+.palm-light .next_showtime_film { font-weight:bold; color:black; }
+.palm-light .future_showtime_film { font-weight:normal; color:#2D2D2D; }
 
 .palm-scrim-cine { background:url('../images/back_scrim.png') top center; }
 
 .palm-radiobutton  div.tab_selected 
 {
-	-webkit-border-image: url(file:///usr/palm/frameworks/mojo/submissions/200.72/images/radiobutton-middle.png) 50 15 50 15 repeat repeat;
+	-webkit-border-image: url('../images/radiobutton-middle.png') 50 15 50 15 repeat repeat;
 	color: white;
 	font-weight: bold;
 }
@@ -173,6 +201,11 @@ body.my-dark-backdrop { background: url(../images/AndroidShowTime_fond1.jpg) cen
 
 .palm-dark .palm-divider.labeled .right {background:url('../images/palm-divider-line.png') left no-repeat;}
 .palm-dark .palm-divider.labeled .left {background:url('../images/palm-divider-line.png') right no-repeat;}
+
+.palm-light .palm-divider.labeled .right {background:url('../images/palm-divider-line.png') left no-repeat;}
+.palm-light .palm-divider.labeled .left {background:url('../images/palm-divider-line.png') right no-repeat;}
+
+.palm-light .label {color:#2D2D2D;}
 
 .div_rating { font-size:0.8em; line-height:16px; }
 .no_review { text-align:center;font-size:0.8em;}

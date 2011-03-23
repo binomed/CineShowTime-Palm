@@ -618,3 +618,14 @@ function parseLinks(str) {
 
 var weekTab = ["spinnerSunday","spinnerMonday","spinnerTuesday","spinnerWenesday","spinnerThursday","spinnerFriday","spinnerSaturday"];
 var timeOut = false;
+
+function applyTheme(theme) {
+  //$A($$('link[rel=stylesheet]')).first().setAttribute('href','stylesheets/cineshowtime_'+theme+'.css');
+  var classes = $$('body')[0].classNames();
+  for(var i = 0; i < classes.length; i++) {
+    $$('body')[0].removeClassName(classes[i]);
+  }
+  
+  $$('body')[0].addClassName('palm-'+theme);
+  $$('body')[0].addClassName('my-'+theme+'-backdrop');
+}

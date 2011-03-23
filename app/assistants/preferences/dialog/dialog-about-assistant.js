@@ -3,7 +3,6 @@ function PreferencesAssistant(argFromPusher) {
 	   additional parameters (after the scene name) that were passed to pushScene. The reference
 	   to the scene controller (this.controller) has not be established yet, so any initialization
 	   that needs the scene controller should be done in the setup function below. */
-	this.dbHelper = new DBHelper();
 	this.dbHelper = argFromPusher.dbHelper;
 	
 	this.preferenceList = [];

@@ -14,6 +14,7 @@ function PreferencesAssistant(argFromPusher) {
 	this.valueProvider = null;
 	this.valueTimeAdds = null;
 	this.valueTimeFormat = null;
+	this.valueTheme = null;
 	this.valueSort = null;
 	this.valueToggle = null;
 	this.modelAutoTrad = null;
@@ -41,6 +42,7 @@ PreferencesAssistant.prototype.setup = function() {
 	//Define preferences names
 	$("titleTradAuto").innerHTML = $L("preference_lang_auto_translate");
 	$("previewTradAuto").innerHTML = $L("preference_lang_auto_translate_summary");
+	$("titleTheme").innerHTML = $L("preference_gen_theme");
 	$("titleTimeFormat").innerHTML = $L("preference_gen_time_format");
 	$("titleTimeAdds").innerHTML = $L("preference_gen_time_adds");
 	$("previewTimeAdds").innerHTML = $L("preference_gen_time_adds_summary");
@@ -63,6 +65,7 @@ PreferencesAssistant.prototype.setup = function() {
 	// Init all widgets
 	this.controller.setupWidget("idTradAuto",this.valueToggle,this.modelAutoTrad);
 	this.controller.setupWidget("idTimeAdds" ,{choices: this.valueTimeAdds} ,this.modelTimeAdds);
+	this.controller.setupWidget("idTheme" ,{choices: this.valueTheme} ,this.modelTheme);
 	this.controller.setupWidget("idTimeFormat" ,{choices: this.valueTimeFormat} ,this.modelTimeFormat);
 	this.controller.setupWidget("idMeasureUnit" ,{choices: this.valueMeasure} ,this.modelLocMeasure);
 	this.controller.setupWidget("idTimeDrive",this.valueToggle,this.modelTimeDirection);
@@ -75,6 +78,8 @@ PreferencesAssistant.prototype.setup = function() {
 	 this.controller.listen("idTradAuto", Mojo.Event.propertyChange, this.changeTradAutoHandler);
 	 this.changeTimeAddsHandler = this.changeTimeAdds.bindAsEventListener(this);
 	 this.controller.listen("idTimeAdds", Mojo.Event.propertyChange, this.changeTimeAddsHandler);
+	 this.changeThemeHandler = this.changeTheme.bindAsEventListener(this);
+	 this.controller.listen("idTheme", Mojo.Event.propertyChange, this.changeThemeHandler);
 	 this.changeTimeFormatHandler = this.changeTimeFormat.bindAsEventListener(this);
 	 this.controller.listen("idTimeFormat", Mojo.Event.propertyChange, this.changeTimeFormatHandler);
 	 this.changeMeasureHandler = this.changeMeasure.bindAsEventListener(this);
@@ -107,6 +112,7 @@ PreferencesAssistant.prototype.postSetup = function() {
 	// Set up our list data model	
 	this.modelAutoTrad.value = ""+this.preferences.getPrefValue(this.preferences.KEY_PREF_LANG_AUTO);
 	this.modelTimeAdds.value = this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS);
+	this.modelTheme.value = this.preferences.getPrefValue(this.preferences.KEY_PREF_THEME);
 	this.modelTimeFormat.value = this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_FORMAT);
 	this.modelLocMeasure.value = this.preferences.getPrefValue(this.preferences.KEY_PREF_MEASURE);
 	this.modelTimeDirection.value = this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_DIRECTION);
@@ -115,6 +121,7 @@ PreferencesAssistant.prototype.postSetup = function() {
 	this.modelSortTheater.value = this.preferences.getPrefValue(this.preferences.KEY_PREF_SORT_THEATER);
 	
 	this.controller.modelChanged(this.modelAutoTrad);
+	this.controller.modelChanged(this.modelTheme, this);
 	this.controller.modelChanged(this.modelTimeFormat, this);
 	this.controller.modelChanged(this.modelTimeAdds, this);
 	this.controller.modelChanged(this.modelLocMeasure, this);
@@ -142,6 +149,9 @@ PreferencesAssistant.prototype.setupModel = function () {
 			              // {label:$L('sort_theaters_values_4'), value:$L('sort_theaters_values_code_4')} à décommenter quand ça sera optimisé
 			              // {label:$L('sort_theaters_values_5'), value:$L('sort_theaters_values_code_5')} à décommenter quand ça sera implémenté
 			              ];
+	this.valueTheme = [{label:$L('theme_dark'), value:"dark"},
+	                   {label:$L('theme_light'), value:"light"}
+			              ];
 	this.valueTimeFormat = [{label:'12 '+$L('hour'), value:12},
 	                      {label:'24 '+$L('hour'), value:24}
 			              ];
@@ -161,6 +171,7 @@ PreferencesAssistant.prototype.setupModel = function () {
 						};
 	
 	this.modelAutoTrad = {value: ""+this.preferences.getPrefValue(this.preferences.KEY_PREF_LANG_AUTO), disabled: false };
+	this.modelTheme = {value: this.preferences.getPrefValue(this.preferences.KEY_PREF_THEME) };
 	this.modelTimeFormat = {value: this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_FORMAT) };
 	this.modelTimeAdds = {value: this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS) };
 	this.modelLocMeasure = {value: this.preferences.getPrefValue(this.preferences.KEY_PREF_MEASURE) };
@@ -195,6 +206,13 @@ PreferencesAssistant.prototype.changeReloadAuto = function(event) {
 	var result = (event.value == 'ON') || (event.value == 'true') || (event.value);
 	this.modelAutoReload.value = result; 
 	this.preferences.changeValue(this.preferences.KEY_PREF_RELOAD_AUTO, result);
+};
+
+PreferencesAssistant.prototype.changeTheme = function(event) {
+	console.log("PreferencesAssistant.changeTheme : "+event.value+", model : "+this.modelTheme.value);
+	this.modelTheme.value = event.value;
+	this.preferences.changeValue(this.preferences.KEY_PREF_THEME, this.modelTheme.value);
+	applyTheme(this.modelTheme.value);
 };
 
 PreferencesAssistant.prototype.changeTimeFormat = function(event) {

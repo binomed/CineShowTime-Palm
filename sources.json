@@ -21,6 +21,7 @@
         "source": "app/assistants/preferences/preferences-assistant.js"
     },
 	{"source": "app/assistants/about-assistant.js"},
+	{"source": "app/assistants/whats-new-assistant.js"},
     {"source": "app/assistants/preferences/dialog/dialog-check-assistant.js"},
     {"source": "app/assistants/preferences/dialog/dialog-list-assistant.js"},
     {"source": "app/assistants/preferences/dialog/dialog-time-assistant.js"},

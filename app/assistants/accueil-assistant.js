@@ -4,7 +4,7 @@ function AccueilAssistant() {
 	   to the scene controller (this.controller) has not be established yet, so any initialization
 	   that needs the scene controller should be done in the setup function below. */
 
-	this.dbHelper = new DBHelper();
+	this.dbHelper = new DBHelper(Mojo.Controller.appInfo.version);
 	/* intialisation de la base de donnée */
 	console.log('AccueilAssistant.AccueilAssistant() : Before Initialisation of data base');
 	this.dbHelper.initDataBase(this.callBackInit.bind(this));
@@ -19,15 +19,18 @@ function AccueilAssistant() {
 	this.preferences = new PreferenceUtils(this.dbHelper);
 	this.forceRequest = false;
 	this.theaterList = [];
-	
+	this.appVersionReturn = null;
+	this.firstSplash = false;
 }
 
 
 AccueilAssistant.prototype.setup = function() {
-	$$('body')[0].addClassName('palm-dark');
-	$$('body')[0].addClassName('my-dark-backdrop');
-	$$('body')[0].addClassName('black');	
-	$$('body')[0].removeClassName('palm-default');
+	
+                                          
+	
+	/*$$('body')[0].addClassName('palm-dark');
+	$$('body')[0].addClassName('my-dark-backdrop');*/	
+	
 	
 	this.buttonAttributes = {};
 	
@@ -87,8 +90,7 @@ AccueilAssistant.prototype.setup = function() {
 
 	this.controller.setupWidget(Mojo.Menu.appMenu, {omitDefaultItems: true}, this.appMenuModel);
 	
-	
-	
+	this.firstSplash = true;
 	
 };
 
@@ -115,13 +117,16 @@ AccueilAssistant.prototype.activate = function(event) {
 			
 			// On extrait tous les cinémas dans le but de reprérer tous les favoris 
 			this.dbHelper.extractTheater(this.callBackTheaterList.bind(this));
+			
 		}
 	}catch(e){
 		console.log('AccueilAssistant.setup : Error setup extractTheater : '+e.message);
 	}
 	
+	
 	window.setTimeout(this.animateSplash.bind(this), 1000);
 	window.setTimeout(this.hideSplash.bind(this), 3500);
+	
 };
 
 AccueilAssistant.prototype.animateSplash = function() {
@@ -131,6 +136,21 @@ AccueilAssistant.prototype.animateSplash = function() {
 
 AccueilAssistant.prototype.hideSplash = function() {
 	$j("#splash").fadeOut(1000);
+	
+	if (this.cst.LOG_DEBUG){
+		console.log('AccueilAssistant.hideSplash : mojo.appversion : '+Mojo.Controller.appInfo.version+', return : '+this.appVersionReturn+", equals :"+(Mojo.Controller.appInfo.version != this.appVersionReturn));
+	}
+	
+	if (Mojo.Controller.appInfo.version != this.appVersionReturn && this.firstSplash){
+		//Lancement de
+		this.controller.showDialog({
+			template: 'whats-new-scene',
+			assistant: new WhatsNewAssistant(this),
+			preventCancel: true
+		});
+		this.dbHelper.insertVersion(Mojo.Controller.appInfo.version);
+	}
+	this.firstSplash = false;
 }
 
 AccueilAssistant.prototype.deactivate = function(event) {
@@ -142,8 +162,9 @@ AccueilAssistant.prototype.errorHandler = function(error) {
     return true;
 };
 
-AccueilAssistant.prototype.callBackInit = function() {
+AccueilAssistant.prototype.callBackInit = function(appVersion) {
 	console.log('AccueilAssistant.callBackInit : '); 
+		
 	this.canSearch = true;
 	this.dbHelper.extractFavTheaters(this.callBackFavTheaterList.bind(this));
 	// On récupère la dernière recherche dans le but de savoir au niveau des date si on doit faire un rafraichissement
@@ -151,6 +172,8 @@ AccueilAssistant.prototype.callBackInit = function() {
 	
 	// On extrait tous les cinémas dans le but de reprérer tous les favoris 
 	this.dbHelper.extractTheater(this.callBackTheaterList.bind(this));
+	
+	this.appVersionReturn = appVersion;
 };
 
 AccueilAssistant.prototype.callbackTimeZone = function(localtime) { 
@@ -172,6 +195,9 @@ AccueilAssistant.prototype.callBackLastRequest = function(request) {
 AccueilAssistant.prototype.callBackTheaterList = function(theaterList) { 
 	console.log("AccueilAssistant.callBackTheaterList : "+theaterList.length);
 	this.theaterList = theaterList;
+	
+	console.log('AccueilAssistant.setup : applying theme : ' + this.preferences.getPrefValue(this.preferences.KEY_PREF_THEME));
+  applyTheme(this.preferences.getPrefValue(this.preferences.KEY_PREF_THEME));
 }
 
 AccueilAssistant.prototype.cleanup = function(event) {
@@ -295,7 +321,11 @@ AccueilAssistant.prototype.openFav = function(event) {
 	if (theater.place != null){
 		this.request.latitude = theater.place.latitude;
 		this.request.longitude = theater.place.longitude;
-		this.request.cityName = theater.place.cityName+', '+theater.place.countryNameCode;
+		this.request.cityName = theater.place.cityName;
+		if (theater.place.countryNameCode != null){
+			this.request.cityName += ', '+theater.place.countryNameCode;
+			
+		}
 	}
 	
 	this.dataTransfert = {

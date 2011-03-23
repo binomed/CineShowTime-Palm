@@ -2,6 +2,7 @@ function PreferenceUtils(dbHelper){
 	//Définition des constantes
 	this.KEY_PREF_LANG_AUTO = $L("preference_lang_key_auto_translate");
 	this.KEY_PREF_RELOAD_AUTO = $L("preference_gen_key_auto_reload");
+	this.KEY_PREF_THEME = $L("preference_gen_key_theme");
 	this.KEY_PREF_TIME_FORMAT = $L("preference_gen_key_time_format");
 	this.KEY_PREF_TIME_ADDS = $L("preference_gen_key_time_adds");
 	this.KEY_PREF_MEASURE = $L("preference_loc_key_measure");
@@ -9,6 +10,7 @@ function PreferenceUtils(dbHelper){
 	this.KEY_PREF_ENABLE_LOCATION = $L("preference_loc_key_enable_localisation");
 	this.KEY_PREF_LOCATION_PROVIDER = $L("preference_loc_key_localisation_provider");
 	this.KEY_PREF_SORT_THEATER = $L("preference_sort_key_sort_theater");
+	
 	// Définition des valeurs de tri et gps
 	this.VALUE_PREF_SORT_THEATER_NAME = $L("sort_theaters_values_code_1");
 	this.VALUE_PREF_SORT_THEATER_DISTANCE = $L("sort_theaters_values_code_2");
@@ -43,6 +45,8 @@ PreferenceUtils.prototype.getPrefValue = function (key) {
 			value = false;
 		}else if(key == this.KEY_PREF_RELOAD_AUTO){
 			value = true;
+		}else if(key == this.KEY_PREF_THEME) {
+      value = "dark";
 		}else if(key == this.KEY_PREF_TIME_FORMAT){
 			if (Mojo.Format.using12HrTime()){
 				value = 12;

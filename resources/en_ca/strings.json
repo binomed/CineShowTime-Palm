@@ -185,6 +185,9 @@
 	"urlHelp":"http://m.blog.binomed.fr/help-cineshowtime-palm-en",
 	"readMore":"read more",
 	"menuReservation":"Reservation",
+	"preference_gen_theme":"Display theme",
+	"-- LastChange Dialog Message ":"",
+	"dialogLastChangeTitle":"Last Change",
 	"----VALUES FOR PREFS----":"",
 	"measure_1":"km",
 	"measure_2":"miles",
@@ -205,5 +208,8 @@
 	"sort_theaters_values_code_2":"THEATER_DISTANCE",
 	"sort_theaters_values_code_3":"SHOWTIME_HOUR",
 	"sort_theaters_values_code_4":"MOVIE_NAME",
-	"sort_theaters_values_code_5":"USER_PREFERENCE"	
+	"sort_theaters_values_code_5":"USER_PREFERENCE",
+  "----THEMES----":"",
+	"theme_dark":"Dark knight",
+	"theme_light":"Shine a light"	
 }
