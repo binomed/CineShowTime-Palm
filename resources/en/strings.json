@@ -87,6 +87,7 @@
 	"movieProgressTitle":"Search movie information",
 	"movieProgressMsg":"Loading...",
 	"plot":"Plot",
+	"trailer":"Trailers",
 	"projectionList":"Showings in the theater:",
 	"projectionTime":"Showing time:",
 	"endHour":"End time:",

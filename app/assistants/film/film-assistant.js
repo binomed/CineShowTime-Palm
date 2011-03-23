@@ -80,7 +80,7 @@ FilmAssistant.prototype.setup = function() {
 	var content = Mojo.View.render({object: {id:"",title:$L("plot")}, template: 'title-template'});
 	$("titleResume").innerHTML = content;
 	
-	var content = Mojo.View.render({object: {id:"",title:$L("Bandes-Annonces")}, template: 'title-template'});
+	var content = Mojo.View.render({object: {id:"",title:$L("trailer")}, template: 'title-template'});
 	$("titleTrailers").innerHTML = content;
 			
 	content = Mojo.View.render({object: {movieLabel:$L("movieLabel"),showtimeLabel:$L("showtimeLabel"),rateLabel:$L("rateLabel")}, template: 'film/tab-template'});
@@ -161,15 +161,6 @@ FilmAssistant.prototype.getTrailer = function() {
 						}
 					});	
 
-	/*
-	this.controller.serviceRequest('palm://com.palm.applicationManager', {
-	   method: 'launch',
-	   parameters: {
-		  id:"com.palm.app.youtube",
-		  params:{"query":this.getMovieTitle(this.movie)+' trailer'}
-	   }
-	}); 
-	*/
 }
 
 FilmAssistant.prototype.callTheater = function() {
@@ -601,17 +592,29 @@ FilmAssistant.prototype.displayTrailer = function(event) {
   var id = parseInt(tg.substring(7));
   console.log('FilmAssistant.displayTrailer : event target : ' + tg + ', id : '+ id);
   
-  var args = {
-      appId: "com.palm.app.videoplayer",
-      name: "nowplaying"
-   };
-
- var params = {
-    target: this.movie.videos[id].url,
-    title: this.movie.videos[id].title
- };
-
- this.controller.stageController.pushScene(args, params);
+//  var args = {
+//      appId: "com.palm.app.videoplayer",
+//      name: "nowplaying"
+//   };
+//
+// var params = {
+//    target: this.movie.videos[id].url,
+//    title: this.movie.videos[id].title
+// };
+//
+// this.controller.stageController.pushScene(args, params);
+ 
+ 	var urlVideo = this.movie.videos[id].url;
+	this.controller.serviceRequest("palm://com.palm.applicationManager", {
+		method: "open",
+		parameters: {
+			id: 'com.palm.app.browser',
+			params: {
+				scene: 'page',
+				target: urlVideo
+			}
+		}
+	});	
   
 }
 
