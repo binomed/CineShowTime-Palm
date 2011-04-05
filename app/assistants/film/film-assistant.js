@@ -29,6 +29,7 @@ function FilmAssistant(argFromPusher) {
 	this.enPlot = true;
 	
 	console.log('FilmAssistant : '+this.movie.movieTime+', id : '+this.movie.id);
+	//console.log('FilmAssistant : webOS version ' + Mojo.Environment.DeviceInfo.platformVersion);
 	
 }
 
@@ -728,8 +729,8 @@ FilmAssistant.prototype.addEvent = function() {
 	console.log('FilmAssistant.addEvent : start : ' + this.showtimeList[this.selectedIndex].showtime);
 	console.log('FilmAssistant.addEvent : end : ' + getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))));
 	
-	this.controller.serviceRequest("palm://com.palm.applicationManager", {
-        method: "open",
+	this.controller.serviceRequest('palm://com.palm.applicationManager', {
+        method: 'open',
         parameters: 
         {
             id: "com.palm.app.calendar",
@@ -737,8 +738,8 @@ FilmAssistant.prototype.addEvent = function() {
             {
                 newEvent: {
                     "subject": decode(this.getMovieTitle(this.movie)),
-                    "dtstart": this.showtimeList[this.selectedIndex].showtime,
-                    "dtend": getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))),
+                    "dtstart": this.showtimeList[this.selectedIndex].showtime.toString(),
+                    "dtend": getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))).toString(),
                     "location": decode(this.theater.theaterName) + ", " + decode(this.theater.place.cityName),
                     "note": '',  // string
                     "allDay": false  // boolean
