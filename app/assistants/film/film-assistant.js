@@ -488,11 +488,7 @@ FilmAssistant.prototype.popupChoose = function(value, event) {
 	}
 
 	if(value == 'cal') { 
-		this.controller.serviceRequest('palm://com.palm.accounts/crud', {
-			method: 'listAccounts',
-			onSuccess: this.setAccount.bind(this),
-			onFailure: this.handleErrResponse.bind(this)
-		}); 
+		this.addEvent(); 
 	}
 
 	if(value == 'sms') {
@@ -707,7 +703,7 @@ FilmAssistant.prototype.addEvent = function() {
 	var date = new Date();
 	date.setTime(this.showtimeList[this.selectedIndex].showtime);
 	
-	this.event = {
+	/*this.event = {
 			"calendarId": this.clndrid,
 			"subject": decode(this.getMovieTitle(this.movie)),
             "startTimestamp": this.showtimeList[this.selectedIndex].showtime,
@@ -727,7 +723,32 @@ FilmAssistant.prototype.addEvent = function() {
 			},
 		onSuccess: this.handleAddResponse.bind(this),
 		onFailure: this.handleErrResponse.bind(this)
-		})
+	});*/
+	
+	console.log('FilmAssistant.addEvent : start : ' + this.showtimeList[this.selectedIndex].showtime);
+	console.log('FilmAssistant.addEvent : end : ' + getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))));
+	
+	this.controller.serviceRequest("palm://com.palm.applicationManager", {
+        method: "open",
+        parameters: 
+        {
+            id: "com.palm.app.calendar",
+            params: 
+            {
+                newEvent: {
+                    "subject": decode(this.getMovieTitle(this.movie)),
+                    "dtstart": this.showtimeList[this.selectedIndex].showtime,
+                    "dtend": getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))),
+                    "location": decode(this.theater.theaterName) + ", " + decode(this.theater.place.cityName),
+                    "note": '',  // string
+                    "allDay": false  // boolean
+                }
+            }
+        },
+        onSuccess: this.handleAddResponse.bind(this),
+		onFailure: this.handleErrResponse.bind(this)
+    });
+
 }
 
 
