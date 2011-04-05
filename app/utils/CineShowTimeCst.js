@@ -29,7 +29,6 @@ function CineShowTimeCst(){
 	this.GOOGLE_MAPS_KEY = "ABQIAAAA_CXWycTt44_mg_LxLiivrhQz_QRRxxi6fl4J7vAWJHWRTZbJMxRlf6zcT0T6E3oP7DzsBFXaWyFfjg";
 	//this.URL_SERVER = "http://localhost:8888/";
 	
-	
 	this.LAST_CHANGE_MESSAGE = "<ul class='versions'>"
 							+ "  <li class='current'>V1.3.5</li>"
 							+ "    <ul>"
