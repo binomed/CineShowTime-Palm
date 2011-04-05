@@ -488,8 +488,17 @@ FilmAssistant.prototype.popupChoose = function(value, event) {
 		day:this.getDays(this.requestBean.day)
 	}
 
-	if(value == 'cal') { 
-		this.addEvent(); 
+	if(value == 'cal') {
+		// Gestion de la nouvelle façon de créer des événements de calendrier
+		if(parseInt(Mojo.Environment.DeviceInfo.platformVersionMajor) < 2) { 
+			this.controller.serviceRequest('palm://com.palm.accounts/crud', {
+				method: 'listAccounts',
+				onSuccess: this.setAccount.bind(this),
+				onFailure: this.handleErrResponse.bind(this)
+			}); 
+		} else {
+			this.addEvent();
+		} 
 	}
 
 	if(value == 'sms') {
@@ -704,52 +713,50 @@ FilmAssistant.prototype.addEvent = function() {
 	var date = new Date();
 	date.setTime(this.showtimeList[this.selectedIndex].showtime);
 	
-	/*this.event = {
-			"calendarId": this.clndrid,
-			"subject": decode(this.getMovieTitle(this.movie)),
-            "startTimestamp": this.showtimeList[this.selectedIndex].showtime,
-            "endTimestamp": getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))),
-            "allDay": "false",
-            "note": "",
-            "location": decode(this.theater.theaterName) + ", " + decode(this.theater.place.cityName),
-            "attendees": [],
-            "alarm": "none"
-        };
-
-	this.controller.serviceRequest('palm://com.palm.calendar/crud', {
-		method: 'createEvent',
-		parameters: {
-			"calendarId": this.event.calendarId,
-			"event": this.event
-			},
-		onSuccess: this.handleAddResponse.bind(this),
-		onFailure: this.handleErrResponse.bind(this)
-	});*/
+	if(parseInt(Mojo.Environment.DeviceInfo.platformVersionMajor) < 2) { 
+		this.event = {
+				"calendarId": this.clndrid,
+				"subject": decode(this.getMovieTitle(this.movie)),
+	            "startTimestamp": this.showtimeList[this.selectedIndex].showtime,
+	            "endTimestamp": getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))),
+	            "allDay": "false",
+	            "note": "",
+	            "location": decode(this.theater.theaterName) + ", " + decode(this.theater.place.cityName),
+	            "attendees": [],
+	            "alarm": "none"
+	        };
 	
-	console.log('FilmAssistant.addEvent : start : ' + this.showtimeList[this.selectedIndex].showtime);
-	console.log('FilmAssistant.addEvent : end : ' + getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))));
-	
-	this.controller.serviceRequest('palm://com.palm.applicationManager', {
-        method: 'open',
-        parameters: 
-        {
-            id: "com.palm.app.calendar",
-            params: 
-            {
-                newEvent: {
-                    "subject": decode(this.getMovieTitle(this.movie)),
-                    "dtstart": this.showtimeList[this.selectedIndex].showtime.toString(),
-                    "dtend": getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))).toString(),
-                    "location": decode(this.theater.theaterName) + ", " + decode(this.theater.place.cityName),
-                    "note": '',  // string
-                    "allDay": false  // boolean
-                }
-            }
-        },
-        onSuccess: this.handleAddResponse.bind(this),
-		onFailure: this.handleErrResponse.bind(this)
-    });
-
+		this.controller.serviceRequest('palm://com.palm.calendar/crud', {
+			method: 'createEvent',
+			parameters: {
+				"calendarId": this.event.calendarId,
+				"event": this.event
+				},
+			onSuccess: this.handleAddResponse.bind(this),
+			onFailure: this.handleErrResponse.bind(this)
+		});
+	} else {	
+		this.controller.serviceRequest('palm://com.palm.applicationManager', {
+	        method: 'open',
+	        parameters: 
+	        {
+	            id: "com.palm.app.calendar",
+	            params: 
+	            {
+	                newEvent: {
+	                    "subject": decode(this.getMovieTitle(this.movie)),
+	                    "dtstart": this.showtimeList[this.selectedIndex].showtime.toString(),
+	                    "dtend": getEndTimeStamp(parseInt(this.showtimeList[this.selectedIndex].showtime), parseInt(this.movie.movieTime), minutesToMs(this.preferences.getPrefValue(this.preferences.KEY_PREF_TIME_ADDS))).toString(),
+	                    "location": decode(this.theater.theaterName) + ", " + decode(this.theater.place.cityName),
+	                    "note": '',  // string
+	                    "allDay": false  // boolean
+	                }
+	            }
+	        },
+	        onSuccess: this.handleAddResponse.bind(this),
+			onFailure: this.handleErrResponse.bind(this)
+	    });
+	}
 }
 
 

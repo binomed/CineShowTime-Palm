@@ -31,7 +31,11 @@ function CineShowTimeCst(){
 	
 	
 	this.LAST_CHANGE_MESSAGE = "<ul class='versions'>"
-							+ "  <li class='current'>V1.3.4</li>"
+							+ "  <li class='current'>V1.3.5</li>"
+							+ "    <ul>"
+							+ "      <li>Fixed calendar webOS 2.0 compatibility</li>"                       
+							+ "    </ul>"
+							+ "  <li>V1.3.4</li>"
 							+ "    <ul>"
 							+ "      <li>Minor update to match server changes</li>"                       
 							+ "    </ul>"         
