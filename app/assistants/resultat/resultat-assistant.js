@@ -381,7 +381,7 @@ ResultatAssistant.prototype.fillLocation = function(numTheater, transport) {
 		}
 		
 		// On met à jour le place
-    this.theaterListResults[numTheater].place = localisation;
+    	this.theaterListResults[numTheater].place = localisation;
     
 		this.nbTheaterResultsTreat++;
 		if (this.nbTheaterResultsTreat == this.nbTheaterResults){
@@ -455,6 +455,7 @@ ResultatAssistant.prototype.loadResults = function(xmlResult) {
     try {
           
       if (!this.cst.BLN_DEBUG) {
+      	this.nbTheaterResultsTreat = 0;	// correction pour la recherche de + de cinémas
     	for(var i = 0; i < this.theaterListResults.length; i++) {
         if(this.theaterListResults[i].place != null && this.theaterListResults[i].place != "null") {
       		place = this.theaterListResults[i].place;

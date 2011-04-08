@@ -30,6 +30,10 @@ function CineShowTimeCst(){
 	//this.URL_SERVER = "http://localhost:8888/";
 	
 	this.LAST_CHANGE_MESSAGE = "<ul class='versions'>"
+							+ "  <li class='current'>V1.3.7</li>"
+							+ "    <ul>"
+							+ "      <li>Fixed the \"More cinemas\" feature</li>"                       
+							+ "    </ul>"
 							+ "  <li class='current'>V1.3.6</li>"
 							+ "    <ul>"
 							+ "      <li>WebOS 1.x compatibility</li>"                       
