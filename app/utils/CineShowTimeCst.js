@@ -30,7 +30,11 @@ function CineShowTimeCst(){
 	//this.URL_SERVER = "http://localhost:8888/";
 	
 	this.LAST_CHANGE_MESSAGE = "<ul class='versions'>"
-							+ "  <li class='current'>V1.3.5</li>"
+							+ "  <li class='current'>V1.3.6</li>"
+							+ "    <ul>"
+							+ "      <li>WebOS 1.x compatibility</li>"                       
+							+ "    </ul>"
+							+ "  <li>V1.3.5</li>"
 							+ "    <ul>"
 							+ "      <li>Fixed calendar webOS 2.0 compatibility</li>"                       
 							+ "    </ul>"
